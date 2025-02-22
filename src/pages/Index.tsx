@@ -1,6 +1,8 @@
 
 import Navbar from "@/components/Navbar";
 import BlogCard from "@/components/BlogCard";
+import { PlusCircle } from "lucide-react";
+import { Button } from "@/components/ui/button";
 
 const SAMPLE_POSTS = {
   operation: [
@@ -87,7 +89,17 @@ const Index = () => {
 
           <div className="grid md:grid-cols-2 gap-8 relative mt-24">
             <div className="space-y-6">
-              <h2 className="text-2xl font-semibold text-white mb-4 [text-shadow:2px_2px_0_rgba(0,0,0,0.1)] [image-rendering:pixelated]">운영 소식</h2>
+              <div className="flex items-center justify-between">
+                <h2 className="text-2xl font-semibold text-white mb-4 [text-shadow:2px_2px_0_rgba(0,0,0,0.1)] [image-rendering:pixelated]">운영 소식</h2>
+                <Button 
+                  variant="ghost" 
+                  size="icon"
+                  className="text-white hover:bg-white/20"
+                  onClick={() => window.location.href = '/operation'}
+                >
+                  <PlusCircle className="w-5 h-5" />
+                </Button>
+              </div>
               {SAMPLE_POSTS.operation.map((post, index) => (
                 <BlogCard
                   key={index}
@@ -98,7 +110,17 @@ const Index = () => {
             </div>
             
             <div className="space-y-6">
-              <h2 className="text-2xl font-semibold text-white mb-4 [text-shadow:2px_2px_0_rgba(0,0,0,0.1)] [image-rendering:pixelated]">기술 블로그</h2>
+              <div className="flex items-center justify-between">
+                <h2 className="text-2xl font-semibold text-white mb-4 [text-shadow:2px_2px_0_rgba(0,0,0,0.1)] [image-rendering:pixelated]">기술 블로그</h2>
+                <Button 
+                  variant="ghost" 
+                  size="icon"
+                  className="text-white hover:bg-white/20"
+                  onClick={() => window.location.href = '/tech'}
+                >
+                  <PlusCircle className="w-5 h-5" />
+                </Button>
+              </div>
               {SAMPLE_POSTS.tech.map((post, index) => (
                 <BlogCard
                   key={index}

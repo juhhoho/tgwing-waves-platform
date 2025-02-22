@@ -1,6 +1,6 @@
 
 import { Button } from "@/components/ui/button";
-import { Waves } from "lucide-react";
+import { Activity, Waves } from "lucide-react";
 
 const Navbar = () => {
   return (
@@ -13,8 +13,12 @@ const Navbar = () => {
           </a>
           
           <div className="hidden md:flex items-center space-x-8">
-            <a href="/operation" className="text-gray-600 hover:text-tgwing-600 transition-colors">운영 블로그</a>
+            <a href="/operation" className="text-gray-600 hover:text-tgwing-600 transition-colors">운영 소식</a>
             <a href="/tech" className="text-gray-600 hover:text-tgwing-600 transition-colors">기술 블로그</a>
+            <a href="/study" className="text-gray-600 hover:text-tgwing-600 transition-colors flex items-center gap-1">
+              <Activity className="w-4 h-4" />
+              스터디
+            </a>
             <a href="/about" className="text-gray-600 hover:text-tgwing-600 transition-colors">소개</a>
             <a href="/members" className="text-gray-600 hover:text-tgwing-600 transition-colors">구성원</a>
           </div>

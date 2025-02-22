@@ -11,7 +11,7 @@ interface BlogCardProps {
 
 const BlogCard = ({ title, description, date, author, type }: BlogCardProps) => {
   return (
-    <Card className="group hover:shadow-lg transition-shadow duration-300 overflow-hidden">
+    <Card className="group hover:shadow-lg transition-shadow duration-300 overflow-hidden h-[200px]">
       <CardHeader className={`
         ${type === "operation" ? "bg-tgwing-50" : "bg-tgwing-100"}
         transition-colors duration-300
