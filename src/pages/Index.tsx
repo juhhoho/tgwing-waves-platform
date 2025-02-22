@@ -40,14 +40,14 @@ const Index = () => {
       
       <div className="relative overflow-hidden">
         <main className="container mx-auto px-4 pt-24 pb-16 relative z-10">
-          <div className="text-center mb-16 animate-fade-in">
-            <div className="bg-white/90 backdrop-blur-sm rounded-lg p-8 shadow-lg">
-              <h1 className="text-5xl font-bold text-gray-900 mb-6 [image-rendering:pixelated]">
+          <div className="text-center mb-16 animate-fade-in relative">
+            <div className="relative z-20 mb-8">
+              <h1 className="text-6xl font-bold text-white mb-6 [text-shadow:4px_4px_0_rgba(0,0,0,0.1)] [image-rendering:pixelated]">
                 Welcome to TGWing
               </h1>
-              <p className="text-2xl text-gray-600 max-w-2xl mx-auto leading-relaxed [image-rendering:pixelated]">
+              <p className="text-3xl text-white max-w-2xl mx-auto leading-relaxed [text-shadow:2px_2px_0_rgba(0,0,0,0.1)] [image-rendering:pixelated]">
                 The Greatest Waving
-                <span className="block text-xl mt-2">
+                <span className="block text-2xl mt-4 text-white/90">
                   혁신적인 생각과 기술로 파도를 일으키는 우리들의 이야기
                 </span>
               </p>
@@ -64,20 +64,20 @@ const Index = () => {
                 <path 
                   fill="#E0F2FE" 
                   fillOpacity="0.8" 
-                  d="M0,192L48,197.3C96,203,192,213,288,229.3C384,245,480,267,576,250.7C672,235,768,181,864,181.3C960,181,1056,235,1152,234.7C1248,235,1344,181,1392,154.7L1440,128L1440,320L1392,320C1344,320,1248,320,1152,320C1056,320,960,320,864,320C768,320,672,320,576,320C480,320,384,320,288,320C192,320,96,320,48,320L0,320Z"
+                  d="M0,96L48,128C96,160,192,224,288,245.3C384,267,480,245,576,234.7C672,224,768,224,864,213.3C960,203,1056,181,1152,181.3C1248,181,1344,203,1392,213.3L1440,224L1440,320L1392,320C1344,320,1248,320,1152,320C1056,320,960,320,864,320C768,320,672,320,576,320C480,320,384,320,288,320C192,320,96,320,48,320L0,320Z"
                   className="animate-wave">
                 </path>
                 <path 
                   fill="#BAE6FD" 
                   fillOpacity="0.6" 
-                  d="M0,256L48,261.3C96,267,192,277,288,261.3C384,245,480,203,576,197.3C672,192,768,224,864,213.3C960,203,1056,149,1152,138.7C1248,128,1344,160,1392,176L1440,192L1440,320L1392,320C1344,320,1248,320,1152,320C1056,320,960,320,864,320C768,320,672,320,576,320C480,320,384,320,288,320C192,320,96,320,48,320L0,320Z"
+                  d="M0,160L48,170.7C96,181,192,203,288,213.3C384,224,480,224,576,213.3C672,203,768,181,864,181.3C960,181,1056,203,1152,208C1248,213,1344,203,1392,197.3L1440,192L1440,320L1392,320C1344,320,1248,320,1152,320C1056,320,960,320,864,320C768,320,672,320,576,320C480,320,384,320,288,320C192,320,96,320,48,320L0,320Z"
                   className="animate-wave" 
                   style={{ animationDelay: '0.2s' }}>
                 </path>
                 <path 
                   fill="#7DD3FC" 
                   fillOpacity="0.4" 
-                  d="M0,288L48,282.7C96,277,192,267,288,245.3C384,224,480,192,576,181.3C672,171,768,181,864,181.3C960,181,1056,171,1152,160C1248,149,1344,139,1392,133.3L1440,128L1440,320L1392,320C1344,320,1248,320,1152,320C1056,320,960,320,864,320C768,320,672,320,576,320C480,320,384,320,288,320C192,320,96,320,48,320L0,320Z"
+                  d="M0,224L48,229.3C96,235,192,245,288,234.7C384,224,480,192,576,181.3C672,171,768,181,864,197.3C960,213,1056,235,1152,229.3C1248,224,1344,192,1392,176L1440,160L1440,320L1392,320C1344,320,1248,320,1152,320C1056,320,960,320,864,320C768,320,672,320,576,320C480,320,384,320,288,320C192,320,96,320,48,320L0,320Z"
                   className="animate-wave"
                   style={{ animationDelay: '0.4s' }}>
                 </path>

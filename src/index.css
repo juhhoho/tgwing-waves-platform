@@ -68,7 +68,7 @@
 
   /* 픽셀 아트 스타일 적용을 위한 기본 설정 */
   * {
-    @apply border-border antialiased;
+    @apply border-border;
     image-rendering: optimizeSpeed;
     image-rendering: -moz-crisp-edges;
     image-rendering: -webkit-optimize-contrast;
@@ -85,17 +85,23 @@
 /* 애니메이션 키프레임 수정 */
 @keyframes wave {
   0% {
-    transform: translateX(0) translateY(0);
+    transform: translateY(0);
+  }
+  25% {
+    transform: translateY(4px);
   }
   50% {
-    transform: translateX(-25%) translateY(4px);
+    transform: translateY(8px);
+  }
+  75% {
+    transform: translateY(4px);
   }
   100% {
-    transform: translateX(-50%) translateY(0);
+    transform: translateY(0);
   }
 }
 
 .animate-wave {
-  animation: wave 15s ease-in-out infinite;
+  animation: wave 3s ease-in-out infinite;
   image-rendering: pixelated;
 }
