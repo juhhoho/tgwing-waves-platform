@@ -69,7 +69,7 @@ export default {
       keyframes: {
         "wave-animation": {
           "0%": { transform: "translateX(0) translateY(0)" },
-          "50%": { transform: "translateX(-25%) translateY(10px)" },
+          "50%": { transform: "translateX(-25%) translateY(4px)" },
           "100%": { transform: "translateX(-50%) translateY(0)" },
         },
         "fade-in": {
