@@ -29,21 +29,21 @@ export const useAxiosWithAuth = () => {
         
         if (error.response?.status === 401 && originalRequest) {
           try {
-            // Attempt to refresh the token
+            // 토큰 재발급 시도
             const response = await axios.post(`${baseURL}/api/auth/reissue`, {}, {
-              withCredentials: true // Needed for cookies
+              withCredentials: true // 쿠키를 위해 필요
             });
             
             const newAccessToken = response.data.accessToken;
             localStorage.setItem('accessToken', newAccessToken);
             
-            // Retry the original request with the new token
+            // 원래 요청 재시도
             if (originalRequest.headers) {
               originalRequest.headers.Authorization = `Bearer ${newAccessToken}`;
             }
             return axios(originalRequest);
           } catch (refreshError) {
-            // If refresh fails, redirect to login
+            // 재발급 실패시 로그인 페이지로 리다이렉트
             localStorage.removeItem('accessToken');
             window.location.href = '/login';
             return Promise.reject(refreshError);

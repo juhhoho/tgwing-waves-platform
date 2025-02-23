@@ -3,6 +3,7 @@ import { useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { Search } from "lucide-react";
 import { Input } from "@/components/ui/input";
+import Navbar from "@/components/Navbar";
 import Pagination from "@/components/ui/pagination";
 import TechBlogCard from "@/components/TechBlogCard";
 import { useAxiosWithAuth } from "@/hooks/useAxiosWithAuth";
@@ -41,6 +42,7 @@ const Tech = () => {
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-[#87CEEB] to-[#1E90FF]">
+      <Navbar />
       <div className="container mx-auto px-4 pt-24 pb-16">
         <div className="relative flex items-center mb-8">
           <Input
@@ -55,7 +57,7 @@ const Tech = () => {
 
         <div className="space-y-4 mb-8">
           {isLoading ? (
-            <div>로딩 중...</div>
+            <div className="text-center text-white">로딩 중...</div>
           ) : (
             data?.posts.map((post: TechPost) => (
               <TechBlogCard key={post.id} post={post} />
@@ -63,12 +65,14 @@ const Tech = () => {
           )}
         </div>
 
-        <Pagination 
-          className="mt-8"
-          currentPage={page}
-          totalPages={data?.totalPages || 1}
-          onPageChange={setPage}
-        />
+        {!isLoading && (
+          <Pagination 
+            className="mt-8"
+            currentPage={page}
+            totalPages={data?.totalPages || 1}
+            onPageChange={setPage}
+          />
+        )}
       </div>
     </div>
   );
