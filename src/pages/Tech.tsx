@@ -3,8 +3,7 @@ import { useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { Search } from "lucide-react";
 import { Input } from "@/components/ui/input";
-import { Button } from "@/components/ui/button";
-import { Pagination } from "@/components/ui/pagination";
+import Pagination from "@/components/ui/pagination";
 import TechBlogCard from "@/components/TechBlogCard";
 import { useAxiosWithAuth } from "@/hooks/useAxiosWithAuth";
 import useDebounce from "@/hooks/useDebounce";
@@ -65,9 +64,9 @@ const Tech = () => {
         </div>
 
         <Pagination 
-          className="flex justify-center"
-          currentPage={page} 
-          totalPages={data?.totalPages || 1} 
+          className="mt-8"
+          currentPage={page}
+          totalPages={data?.totalPages || 1}
           onPageChange={setPage}
         />
       </div>
