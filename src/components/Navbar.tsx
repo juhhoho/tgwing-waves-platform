@@ -19,8 +19,7 @@ const Navbar = () => {
               <Activity className="w-4 h-4" />
               스터디
             </a>
-            <a href="/about" className="text-gray-600 hover:text-tgwing-600 transition-colors">소개</a>
-            <a href="/members" className="text-gray-600 hover:text-tgwing-600 transition-colors">구성원</a>
+            <a href="/about" className="text-gray-600 hover:text-tgwing-600 transition-colors">동아리 소개</a>
           </div>
 
           <div className="flex items-center space-x-4">
