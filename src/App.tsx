@@ -9,6 +9,7 @@ import Tech from "./pages/Tech";
 import TechWrite from "./pages/TechWrite";
 import Operation from "./pages/Operation";
 import Study from "./pages/Study";
+import StudyDetail from "./pages/StudyDetail";
 import About from "./pages/About";
 import NotFound from "./pages/NotFound";
 
@@ -26,6 +27,7 @@ const App = () => (
           <Route path="/tech/write" element={<TechWrite />} />
           <Route path="/operation" element={<Operation />} />
           <Route path="/study" element={<Study />} />
+          <Route path="/study/:id" element={<StudyDetail />} />
           <Route path="/about" element={<About />} />
           <Route path="*" element={<NotFound />} />
         </Routes>
