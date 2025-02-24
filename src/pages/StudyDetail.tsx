@@ -1,4 +1,3 @@
-
 import { useParams } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
 import Navbar from "@/components/Navbar";
@@ -80,119 +79,140 @@ const StudyDetail = () => {
   if (!study) return <div>Study not found</div>;
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-[#87CEEB] to-[#1E90FF]">
+    <div className="min-h-screen bg-[#111827] text-white overflow-hidden">
       <Navbar />
-      <div className="container mx-auto px-4 pt-24 pb-16">
-        {/* 스터디 기본 정보 */}
-        <Card className="mb-8">
-          <CardHeader>
-            <CardTitle className="text-3xl">{study.title}</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <p className="text-gray-600 mb-6">{study.description}</p>
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-              <div className="flex items-center gap-2">
-                <Calendar className="w-5 h-5 text-tgwing-600" />
-                <span>{study.schedule}</span>
+      <div className="relative">
+        <div className="container mx-auto px-4 pt-32 pb-16 relative z-10">
+          {/* 스터디 기본 정보 */}
+          <Card className="mb-8 bg-white/10 backdrop-blur-md">
+            <CardHeader>
+              <CardTitle className="text-3xl">{study.title}</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <p className="text-gray-600 mb-6">{study.description}</p>
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+                <div className="flex items-center gap-2">
+                  <Calendar className="w-5 h-5 text-tgwing-600" />
+                  <span>{study.schedule}</span>
+                </div>
+                <div className="flex items-center gap-2">
+                  <Users className="w-5 h-5 text-tgwing-600" />
+                  <span>{study.currentMembers} / {study.maxMembers}명</span>
+                </div>
+                <div className="flex items-center gap-2">
+                  <BookOpen className="w-5 h-5 text-tgwing-600" />
+                  <span>주 1회 오프라인</span>
+                </div>
               </div>
-              <div className="flex items-center gap-2">
-                <Users className="w-5 h-5 text-tgwing-600" />
-                <span>{study.currentMembers} / {study.maxMembers}명</span>
-              </div>
-              <div className="flex items-center gap-2">
-                <BookOpen className="w-5 h-5 text-tgwing-600" />
-                <span>주 1회 오프라인</span>
-              </div>
-            </div>
-          </CardContent>
-        </Card>
+            </CardContent>
+          </Card>
 
-        {/* 스터디 목표 & 커리큘럼 */}
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-8 mb-8">
-          <Card>
+          {/* 스터디 목표 & 커리큘럼 */}
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-8 mb-8">
+            <Card>
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2">
+                  <Target className="w-5 h-5" />
+                  스터디 목표
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+                <ul className="space-y-2">
+                  {study.goals.map((goal, index) => (
+                    <li key={index} className="flex items-start gap-2">
+                      <span className="text-tgwing-600">•</span>
+                      {goal}
+                    </li>
+                  ))}
+                </ul>
+              </CardContent>
+            </Card>
+
+            <Card>
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2">
+                  <BookOpen className="w-5 h-5" />
+                  커리큘럼
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+                <ul className="space-y-2">
+                  {study.curriculum.map((item, index) => (
+                    <li key={index} className="flex items-start gap-2">
+                      <span className="text-tgwing-600">•</span>
+                      {item}
+                    </li>
+                  ))}
+                </ul>
+              </CardContent>
+            </Card>
+          </div>
+
+          {/* 스터디 성과 */}
+          <Card className="mb-8 bg-white/10 backdrop-blur-md">
             <CardHeader>
               <CardTitle className="flex items-center gap-2">
-                <Target className="w-5 h-5" />
-                스터디 목표
+                <Award className="w-5 h-5" />
+                주요 성과
               </CardTitle>
             </CardHeader>
             <CardContent>
               <ul className="space-y-2">
-                {study.goals.map((goal, index) => (
+                {study.achievements.map((achievement, index) => (
                   <li key={index} className="flex items-start gap-2">
                     <span className="text-tgwing-600">•</span>
-                    {goal}
+                    {achievement}
                   </li>
                 ))}
               </ul>
             </CardContent>
           </Card>
 
-          <Card>
+          {/* 스터디 멤버 */}
+          <Card className="bg-white/10 backdrop-blur-md">
             <CardHeader>
               <CardTitle className="flex items-center gap-2">
-                <BookOpen className="w-5 h-5" />
-                커리큘럼
+                <Users className="w-5 h-5" />
+                스터디 멤버
               </CardTitle>
             </CardHeader>
             <CardContent>
-              <ul className="space-y-2">
-                {study.curriculum.map((item, index) => (
-                  <li key={index} className="flex items-start gap-2">
-                    <span className="text-tgwing-600">•</span>
-                    {item}
-                  </li>
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                {study.members.map((member) => (
+                  <div key={member.name} className="flex items-center gap-4 p-4 rounded-lg border">
+                    <Avatar className="w-12 h-12">
+                      <AvatarImage src={member.avatar} />
+                      <AvatarFallback>{member.name[0]}</AvatarFallback>
+                    </Avatar>
+                    <div>
+                      <div className="font-semibold">{member.name}</div>
+                      <div className="text-sm text-gray-500">{member.role}</div>
+                    </div>
+                  </div>
                 ))}
-              </ul>
+              </div>
             </CardContent>
           </Card>
         </div>
 
-        {/* 스터디 성과 */}
-        <Card className="mb-8">
-          <CardHeader>
-            <CardTitle className="flex items-center gap-2">
-              <Award className="w-5 h-5" />
-              주요 성과
-            </CardTitle>
-          </CardHeader>
-          <CardContent>
-            <ul className="space-y-2">
-              {study.achievements.map((achievement, index) => (
-                <li key={index} className="flex items-start gap-2">
-                  <span className="text-tgwing-600">•</span>
-                  {achievement}
-                </li>
-              ))}
-            </ul>
-          </CardContent>
-        </Card>
-
-        {/* 스터디 멤버 */}
-        <Card>
-          <CardHeader>
-            <CardTitle className="flex items-center gap-2">
-              <Users className="w-5 h-5" />
-              스터디 멤버
-            </CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-              {study.members.map((member) => (
-                <div key={member.name} className="flex items-center gap-4 p-4 rounded-lg border">
-                  <Avatar className="w-12 h-12">
-                    <AvatarImage src={member.avatar} />
-                    <AvatarFallback>{member.name[0]}</AvatarFallback>
-                  </Avatar>
-                  <div>
-                    <div className="font-semibold">{member.name}</div>
-                    <div className="text-sm text-gray-500">{member.role}</div>
-                  </div>
-                </div>
-              ))}
-            </div>
-          </CardContent>
-        </Card>
+        {/* Decorative waves */}
+        <div className="absolute bottom-0 left-0 right-0 h-64 z-0">
+          <svg className="w-full h-full" viewBox="0 0 1440 320" xmlns="http://www.w3.org/2000/svg">
+            <path 
+              fill="#0284c7" 
+              fillOpacity="0.1" 
+              d="M0,96L48,128C96,160,192,224,288,245.3C384,267,480,245,576,234.7C672,224,768,224,864,213.3C960,203,1056,181,1152,181.3C1248,181,1344,203,1392,213.3L1440,224L1440,320L1392,320C1344,320,1248,320,1152,320C1056,320,960,320,864,320C768,320,672,320,576,320C480,320,384,320,288,320C192,320,96,320,48,320L0,320Z"
+              className="animate-wave"
+            />
+            <path 
+              fill="#0284c7" 
+              fillOpacity="0.2" 
+              d="M0,160L48,170.7C96,181,192,203,288,213.3C384,224,480,224,576,213.3C672,203,768,181,864,181.3C960,181,1056,203,1152,208C1248,213,1344,203,1392,197.3L1440,192L1440,320L1392,320C1344,320,1248,320,1152,320C1056,320,960,320,864,320C768,320,672,320,576,320C480,320,384,320,288,320C192,320,96,320,48,320L0,320Z"
+              className="animate-wave"
+              style={{ animationDelay: "0.2s" }}
+            />
+          </svg>
+        </div>
       </div>
     </div>
   );
