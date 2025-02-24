@@ -2,9 +2,11 @@
 import { Button } from "@/components/ui/button";
 import { Activity, Waves } from "lucide-react";
 import { useNavigate } from "react-router-dom";
+import { useToast } from "@/components/ui/use-toast";
 
 const Navbar = () => {
   const navigate = useNavigate();
+  const { toast } = useToast();
   const isAuthenticated = !!localStorage.getItem('accessToken');
 
   const handleNavigation = (path: string) => {
