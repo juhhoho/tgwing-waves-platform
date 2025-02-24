@@ -14,11 +14,8 @@ interface OperationPost {
   id: string;
   title: string;
   thumbnail: string;
-  createdAt: string;
-  author: {
-    name: string;
-    avatar: string;
-  };
+  uploadAt: string;
+  author: string;
 }
 
 const mockPosts: OperationPost[] = [
@@ -26,21 +23,15 @@ const mockPosts: OperationPost[] = [
     id: "1",
     title: "2024년도 1학기 신입부원 모집",
     thumbnail: "https://images.unsplash.com/photo-1498050108023-c5249f4df085",
-    createdAt: "2024-02-20",
-    author: {
-      name: "운영진",
-      avatar: "https://api.dicebear.com/7.x/avataaars/svg?seed=Admin"
-    }
+    uploadAt: "2024-02-20",
+    author : "운영진"
   },
   {
     id: "2",
     title: "2024년도 정기총회 안내",
     thumbnail: "https://images.unsplash.com/photo-1461749280684-dccba630e2f6",
-    createdAt: "2024-02-19",
-    author: {
-      name: "회장",
-      avatar: "https://api.dicebear.com/7.x/avataaars/svg?seed=President"
-    }
+    uploadAt: "2024-02-19",
+    author: "회장"
   }
 ];
 

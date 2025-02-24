@@ -35,7 +35,7 @@ const Register = () => {
 
   const handleEmailVerification = async () => {
     try {
-      await axios.post("/api/auth/verify-email", { email: formData.email });
+      await axios.post("http://localhost:8080/api/register/email/send", { email: formData.email });
       toast({
         title: "인증 코드 발송",
         description: "이메일로 인증 코드가 발송되었습니다.",
@@ -51,9 +51,9 @@ const Register = () => {
 
   const handleVerifyCode = async () => {
     try {
-      await axios.post("/api/auth/verify-code", {
+      await axios.post("http://localhost:8080/api/register/email/check", {
         email: formData.email,
-        code: verificationCode,
+        verificationCode: verificationCode,
       });
       setIsEmailVerified(true);
       toast({
@@ -72,7 +72,7 @@ const Register = () => {
 
   const handleUsernameCheck = async () => {
     try {
-      await axios.post("/api/auth/check-username", {
+      await axios.post("http://localhost:8080/api/register/check/username", {
         username: formData.username,
       });
       setIsUsernameAvailable(true);
@@ -91,7 +91,7 @@ const Register = () => {
 
   const handleSubmit = async () => {
     try {
-      await axios.post("/api/auth/register", formData);
+      await axios.post("http://localhost:8080/api/register/signup", formData);
       toast({
         title: "회원가입 성공",
         description: "회원가입이 완료되었습니다. 로그인 페이지로 이동합니다.",

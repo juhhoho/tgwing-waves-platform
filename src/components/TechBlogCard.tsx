@@ -5,11 +5,8 @@ interface TechPost {
   id: string;
   title: string;
   thumbnail: string;
-  createdAt: string;
-  author: {
-    name: string;
-    avatar: string;
-  };
+  uploadAt: string;
+  author: string
 }
 
 interface TechBlogCardProps {
@@ -28,16 +25,11 @@ const TechBlogCard = ({ post }: TechBlogCardProps) => {
         <div>
           <h3 className="text-xl font-semibold mb-2">{post.title}</h3>
           <div className="flex items-center space-x-2">
-            <img
-              src={post.author.avatar}
-              alt={post.author.name}
-              className="w-6 h-6 rounded-full"
-            />
-            <span className="text-gray-600">{post.author.name}</span>
+            <span className="text-gray-600">{post.author}</span>
           </div>
         </div>
         <time className="text-sm text-gray-500">
-          {new Date(post.createdAt).toLocaleDateString()}
+          {new Date(post.uploadAt).toLocaleDateString()}
         </time>
       </div>
     </Card>

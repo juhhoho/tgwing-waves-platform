@@ -13,14 +13,12 @@ const Index = () => {
       <div className="relative">
         <main className="container mx-auto px-4 pt-32 pb-16 relative z-10">
           <div className="max-w-4xl mx-auto text-center">
-            <h1 className="text-5xl sm:text-6xl font-bold mb-8 text-transparent bg-clip-text bg-gradient-to-r from-tgwing-400 to-tgwing-600">
-              프로젝트에 즐거움을
-              <br />
-              모두에게 기회를
+            <h1 className="text-6xl sm:text-2xl font-bold mb-8 text-transparent bg-clip-text bg-gradient-to-r from-tgwing-400 to-tgwing-600">
+            혁신적인 생각과 기술로 파도를 일으키는 우리들의 이야기
             </h1>
             
-            <p className="text-xl sm:text-2xl mb-12 text-gray-300">
-              혁신적인 생각과 기술로 파도를 일으키는 우리들의 이야기
+            <p className="text-xl sm:text-6xl mb-12 text-gray-300" >
+              The Greatest Waving!
             </p>
 
             <div className="flex flex-col sm:flex-row gap-4 justify-center items-center">

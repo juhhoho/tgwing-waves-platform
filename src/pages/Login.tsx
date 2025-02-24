@@ -6,6 +6,7 @@ import { Input } from "@/components/ui/input";
 import { useToast } from "@/components/ui/use-toast";
 import Navbar from "@/components/Navbar";
 import axios from "axios";
+import { access } from "fs";
 
 const Login = () => {
   const navigate = useNavigate();
@@ -16,14 +17,20 @@ const Login = () => {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     try {
-      const response = await axios.post("/api/auth/login", {
+      const response = await axios.post("http://localhost:8080/api/login", {
         username,
         password,
       }, {
         withCredentials: true // 쿠키를 위해 필요
       });
-      
-      const { accessToken } = response.data;
+
+      const accessToken = response.headers["access"];
+      console.log(accessToken);
+    
+      if (!accessToken) {
+        throw new Error("Access Token이 응답 헤더에 없음");
+      }
+      console.log(accessToken);
       localStorage.setItem('accessToken', accessToken);
       
       toast({
