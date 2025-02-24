@@ -45,7 +45,7 @@ const Login = () => {
     <div className="min-h-screen bg-[#111827] text-white overflow-hidden">
       <Navbar />
       <div className="relative">
-        <div className="container mx-auto px-4 pt-24 pb-16 relative z-10">
+        <main className="container mx-auto px-4 pt-32 pb-16 relative z-10">
           <div className="max-w-md mx-auto bg-white/10 backdrop-blur-md rounded-lg p-6 shadow-lg">
             <h2 className="text-2xl font-bold mb-6 text-center">로그인</h2>
             <form onSubmit={handleSubmit} className="space-y-4">
@@ -81,7 +81,7 @@ const Login = () => {
               </div>
             </form>
           </div>
-        </div>
+        </main>
 
         {/* Decorative waves */}
         <div className="absolute bottom-0 left-0 right-0 h-64 z-0">
