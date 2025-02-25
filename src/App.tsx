@@ -1,3 +1,4 @@
+
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
@@ -6,6 +7,7 @@ import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import Index from "./pages/Index";
 import Tech from "./pages/Tech";
 import TechWrite from "./pages/TechWrite";
+import TechDetail from "./pages/TechDetail"; // 추가
 import Operation from "./pages/Operation";
 import OperationWrite from "./pages/OperationWrite";
 import Study from "./pages/Study";

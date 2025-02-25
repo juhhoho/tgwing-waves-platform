@@ -1,3 +1,4 @@
+
 import { useState, useCallback } from "react";
 import { useNavigate } from "react-router-dom";
 import { useEditor, EditorContent } from "@tiptap/react";
@@ -7,6 +8,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { useToast } from "@/components/ui/use-toast";
 import { useAxiosWithAuth } from "@/hooks/useAxiosWithAuth";
+import { cn } from "@/lib/utils";
 import Navbar from "@/components/Navbar";
 import { Bold, Italic, List, ListOrdered, Image as ImageIcon } from "lucide-react";
 
