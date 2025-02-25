@@ -163,17 +163,41 @@ const TechWrite = () => {
                   </div>
                 </div>
                 <div className="border-t border-white/10 p-4 bg-white/5">
-                  <label className="block text-sm font-medium text-gray-200 mb-2">썸네일 URL</label>
-                  <Input
-                    type="text"
-                    placeholder="썸네일 이미지 URL을 입력하세요"
-                    value={thumbnail}
-                    onChange={(e) => setThumbnail(e.target.value)}
-                    className="bg-white/5 border-white/10 text-white placeholder:text-gray-400"
-                  />
+                  <label className="block text-sm font-medium text-gray-200 mb-2">썸네일</label>
+                  <div className="flex gap-4 items-center">
+                    <input
+                      type="file"
+                      accept="image/*"
+                      onChange={(e) => {
+                        const file = e.target.files?.[0];
+                        if (file) {
+                          const reader = new FileReader();
+                          reader.onload = () => {
+                            if (reader.result) {
+                              setThumbnail(reader.result.toString());
+                            }
+                          };
+                          reader.readAsDataURL(file);
+                        }
+                      }}
+                      className="block w-full text-sm text-gray-300
+                        file:mr-4 file:py-2 file:px-4
+                        file:rounded-md file:border-0
+                        file:text-sm file:font-semibold
+                        file:bg-white/10 file:text-white
+                        hover:file:bg-white/20"
+                    />
+                    {thumbnail && (
+                      <img
+                        src={thumbnail}
+                        alt="썸네일 미리보기"
+                        className="h-20 w-20 object-cover rounded"
+                      />
+                    )}
+                  </div>
                   {!thumbnail && (
                     <p className="mt-2 text-sm text-gray-400">
-                      URL을 입력하지 않으면 기본 이미지가 사용됩니다.
+                      이미지를 선택하지 않으면 기본 이미지가 사용됩니다.
                     </p>
                   )}
                 </div>

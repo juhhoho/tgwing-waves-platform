@@ -20,6 +20,7 @@ const TechEdit = () => {
   const { toast } = useToast();
   const axiosWithAuth = useAxiosWithAuth();
   const [title, setTitle] = useState("");
+  const [thumbnail, setThumbnail] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   const editor = useEditor({
@@ -42,6 +43,7 @@ const TechEdit = () => {
     meta: {
       onSuccess: (data) => {
         setTitle(data.title);
+        setThumbnail(data.thumbnail);
         editor?.commands.setContent(data.content);
       }
     }
@@ -62,7 +64,8 @@ const TechEdit = () => {
     try {
       await axiosWithAuth.patch(`/api/feeds/${id}`, {
         title,
-        content: editor.getHTML()
+        content: editor.getHTML(),
+        thumbnail
       },{
         headers: {
           "Content-Type": "application/json",
@@ -153,7 +156,7 @@ const TechEdit = () => {
             <ImageIcon className="h-4 w-4" />
           </label>
         </Button>
-        <input id="imageUpload" type="file" accept="image/*" className="hidden" />
+        <input id="imageUpload" type="file" accept="image/*" onChange={addImage} className="hidden" />
       </div>
     );
   };
@@ -182,8 +185,43 @@ const TechEdit = () => {
 
                 <div className="border-t border-white/10">
                   <MenuBar editor={editor} />
-                  <div className="bg-white/5 rounded-b-lg">
+                  <div className="bg-white/5">
                     <EditorContent editor={editor} className="min-h-[500px] text-white prose-invert max-w-none" />
+                  </div>
+                </div>
+
+                <div className="border-t border-white/10 p-4 bg-white/5">
+                  <label className="block text-sm font-medium text-gray-200 mb-2">썸네일</label>
+                  <div className="flex gap-4 items-center">
+                    <input
+                      type="file"
+                      accept="image/*"
+                      onChange={(e) => {
+                        const file = e.target.files?.[0];
+                        if (file) {
+                          const reader = new FileReader();
+                          reader.onload = () => {
+                            if (reader.result) {
+                              setThumbnail(reader.result.toString());
+                            }
+                          };
+                          reader.readAsDataURL(file);
+                        }
+                      }}
+                      className="block w-full text-sm text-gray-300
+                        file:mr-4 file:py-2 file:px-4
+                        file:rounded-md file:border-0
+                        file:text-sm file:font-semibold
+                        file:bg-white/10 file:text-white
+                        hover:file:bg-white/20"
+                    />
+                    {thumbnail && (
+                      <img
+                        src={thumbnail}
+                        alt="썸네일 미리보기"
+                        className="h-20 w-20 object-cover rounded"
+                      />
+                    )}
                   </div>
                 </div>
               </div>
@@ -208,7 +246,6 @@ const TechEdit = () => {
           </div>
         </div>
         
-        {/* Decorative waves */}
         <div className="absolute bottom-0 left-0 right-0 h-64 z-0">
           <svg className="w-full h-full" viewBox="0 0 1440 320" xmlns="http://www.w3.org/2000/svg">
             <path 
