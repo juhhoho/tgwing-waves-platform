@@ -41,12 +41,16 @@ const TechWrite = () => {
       const response = await axiosWithAuth.post("/api/feed", {
         title,
         content: editor.getHTML(),
-      });
+      },
+      { 
+        headers: { "Content-Type": "application/json", access: localStorage.getItem("accessToken") } 
+      }
+    );
       toast({ 
         title: "성공", 
         description: "글이 성공적으로 작성되었습니다." 
       });
-      navigate(`/tech/${response.data.id}`);
+      navigate(`/tech`);
     } catch (error) {
       toast({ 
         title: "오류 발생", 

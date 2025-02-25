@@ -12,26 +12,32 @@ interface TechPost {
   id: string;
   title: string;
   content: string;
-  thumbnail: string;
   uploadAt: string;
   author: string;
-  authorId: string;
 }
 
 const TechDetail = () => {
   const { id } = useParams();
+  const feedId = Number(id);
   const navigate = useNavigate();
   const { toast } = useToast();
   const axiosWithAuth = useAxiosWithAuth();
   const [isDeleting, setIsDeleting] = useState(false);
 
+
   const { data: post, isLoading } = useQuery({
-    queryKey: ["tech-post", id],
+    queryKey: ["feedId", feedId],
     queryFn: async () => {
-      const response = await axiosWithAuth.get(`/api/feed/${id}`);
-      return response.data;
+      const response = await axiosWithAuth.get(`/api/feeds/${feedId}`, {
+        headers: {
+          "Content-Type": "application/json",
+          access: localStorage.getItem("accessToken") ?? ""
+        }
+      });
+      return response.data.response;
     }
-  });
+});
+
 
   const handleEdit = () => {
     navigate(`/tech/edit/${id}`);
@@ -42,7 +48,7 @@ const TechDetail = () => {
     
     setIsDeleting(true);
     try {
-      await axiosWithAuth.delete(`/api/feed/${id}`);
+      await axiosWithAuth.delete(`/api/feeds/${id}`);
       toast({
         title: "삭제 완료",
         description: "게시글이 성공적으로 삭제되었습니다.",
@@ -59,7 +65,7 @@ const TechDetail = () => {
     }
   };
 
-  const isAuthor = post?.authorId === localStorage.getItem("userId");
+  const isAuthor = post?.author === localStorage.getItem("username");
 
   if (isLoading) {
     return (
