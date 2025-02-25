@@ -17,6 +17,7 @@ const TechWrite = () => {
   const { toast } = useToast();
   const axiosWithAuth = useAxiosWithAuth();
   const [title, setTitle] = useState("");
+  const [thumbnail, setThumbnail] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   const editor = useEditor({
@@ -38,14 +39,20 @@ const TechWrite = () => {
     
     setIsSubmitting(true);
     try {
-      const response = await axiosWithAuth.post("/api/feed", {
+      let finalThumbnail = thumbnail;
+      if(thumbnail.length == 0){
+        finalThumbnail = "https://demo-bucket-605134439665.s3.ap-northeast-2.amazonaws.com/liz.png";
+      }
+      
+      await axiosWithAuth.post("/api/feed", {
         title,
         content: editor.getHTML(),
+        thumbnail: finalThumbnail
       },
       { 
         headers: { "Content-Type": "application/json", access: localStorage.getItem("accessToken") } 
-      }
-    );
+      });
+      
       toast({ 
         title: "성공", 
         description: "글이 성공적으로 작성되었습니다." 
@@ -151,17 +158,32 @@ const TechWrite = () => {
                 />
                 <div className="border-t border-white/10">
                   <MenuBar editor={editor} />
-                  <div className="bg-white/5 rounded-b-lg">
+                  <div className="bg-white/5">
                     <EditorContent editor={editor} className="min-h-[500px] text-white prose-invert max-w-none" />
                   </div>
+                </div>
+                <div className="border-t border-white/10 p-4 bg-white/5">
+                  <label className="block text-sm font-medium text-gray-200 mb-2">썸네일 URL</label>
+                  <Input
+                    type="text"
+                    placeholder="썸네일 이미지 URL을 입력하세요"
+                    value={thumbnail}
+                    onChange={(e) => setThumbnail(e.target.value)}
+                    className="bg-white/5 border-white/10 text-white placeholder:text-gray-400"
+                  />
+                  {!thumbnail && (
+                    <p className="mt-2 text-sm text-gray-400">
+                      URL을 입력하지 않으면 기본 이미지가 사용됩니다.
+                    </p>
+                  )}
                 </div>
               </div>
               <div className="flex justify-end space-x-4">
                 <Button 
                   type="button" 
-                  variant="outline" 
+                  variant="secondary" 
                   onClick={() => navigate("/tech")} 
-                  className="text-white border-white/20 hover:bg-white/10 font-semibold"
+                  className="bg-white/10 text-white hover:bg-white/20 font-semibold"
                 >
                   취소
                 </Button>

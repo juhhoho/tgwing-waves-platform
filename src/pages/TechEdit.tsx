@@ -1,5 +1,5 @@
 
-import { useState } from "react";
+import { useState, useCallback } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
 import { useEditor, EditorContent } from "@tiptap/react";
@@ -25,20 +25,13 @@ const TechEdit = () => {
   const editor = useEditor({
     extensions: [StarterKit, Image],
     content: "",
-    editorProps: {
-      attributes: {
-        class: "placeholder-gray-500", // Tailwind 스타일 적용 가능
-      },
-    },
-    onCreate: ({ editor }) => {
-      editor.commands.setContent(post?.content || "<p>내용을 입력하세요...</p>");
-    },
+    editorProps: { attributes: { class: 'prose mx-auto focus:outline-none min-h-[300px] p-4' } },
   });
 
   const { data: post } = useQuery({
     queryKey: ["feedId", feedId],
     queryFn: async () => {
-      const response = await axiosWithAuth.get(`/api/feeds/${feedId}`,{
+      const response = await axiosWithAuth.get(`/api/feeds/${feedId}`, {
         headers: {
           "Content-Type": "application/json",
           access: localStorage.getItem("accessToken") ?? ""
@@ -47,17 +40,12 @@ const TechEdit = () => {
       return response.data.response;
     },
     meta: {
-      onSuccess: (data: any) => {
+      onSuccess: (data) => {
         setTitle(data.title);
         editor?.commands.setContent(data.content);
       }
     }
-    
   });
-
-  console.log("title: " + post.title);
-  console.log("content: " + post.content);
-  
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -99,6 +87,19 @@ const TechEdit = () => {
   };
 
   const MenuBar = ({ editor }: { editor: any }) => {
+    const addImage = useCallback((event: React.ChangeEvent<HTMLInputElement>) => {
+      const file = event.target.files?.[0];
+      if (!file) return;
+
+      const reader = new FileReader();
+      reader.onload = () => {
+        if (reader.result) {
+          editor.chain().focus().setImage({ src: reader.result.toString() }).run();
+        }
+      };
+      reader.readAsDataURL(file);
+    }, [editor]);
+
     if (!editor) return null;
 
     return (
@@ -167,7 +168,7 @@ const TechEdit = () => {
               <div className="bg-white/10 backdrop-blur-md rounded-lg shadow-lg">
                 <Input 
                   type="text" 
-                  placeholder="제목을 입력하세요"
+                  placeholder="제목을 입력하세요" 
                   value={title} 
                   onChange={(e) => setTitle(e.target.value)} 
                   className="text-2xl font-semibold border-0 rounded-t-lg rounded-b-none focus-visible:ring-0 bg-white/5 border-white/10 text-white placeholder:text-gray-400" 
