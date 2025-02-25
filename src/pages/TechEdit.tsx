@@ -32,9 +32,11 @@ const TechEdit = () => {
       const response = await axiosWithAuth.get(`/api/feeds/${id}`);
       return response.data;
     },
-    onSuccess: (data) => {
-      setTitle(data.title);
-      editor?.commands.setContent(data.content);
+    meta: {
+      onSuccess: (data: any) => {
+        setTitle(data.title);
+        editor?.commands.setContent(data.content);
+      }
     }
   });
 
