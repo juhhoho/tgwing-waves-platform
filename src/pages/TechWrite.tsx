@@ -10,46 +10,6 @@ import { useAxiosWithAuth } from "@/hooks/useAxiosWithAuth";
 import Navbar from "@/components/Navbar";
 import { Bold, Italic, List, ListOrdered, Image as ImageIcon } from "lucide-react";
 
-const MenuBar = ({ editor }: { editor: any }) => {
-  const addImage = useCallback((event: React.ChangeEvent<HTMLInputElement>) => {
-    const file = event.target.files?.[0];
-    if (!file) return;
-
-    const reader = new FileReader();
-    reader.onload = () => {
-      if (reader.result) {
-        editor.chain().focus().setImage({ src: reader.result.toString() }).run();
-      }
-    };
-    reader.readAsDataURL(file);
-  }, [editor]);
-
-  if (!editor) return null;
-
-  return (
-    <div className="border border-gray-200 rounded-t-lg p-2 flex gap-2 bg-white">
-      <Button variant="ghost" size="sm" onClick={() => editor.chain().focus().toggleBold().run()} className={editor.isActive("bold") ? "bg-gray-200" : ""}>
-        <Bold className="h-4 w-4" />
-      </Button>
-      <Button variant="ghost" size="sm" onClick={() => editor.chain().focus().toggleItalic().run()} className={editor.isActive("italic") ? "bg-gray-200" : ""}>
-        <Italic className="h-4 w-4" />
-      </Button>
-      <Button variant="ghost" size="sm" onClick={() => editor.chain().focus().toggleBulletList().run()} className={editor.isActive("bulletList") ? "bg-gray-200" : ""}>
-        <List className="h-4 w-4" />
-      </Button>
-      <Button variant="ghost" size="sm" onClick={() => editor.chain().focus().toggleOrderedList().run()} className={editor.isActive("orderedList") ? "bg-gray-200" : ""}>
-        <ListOrdered className="h-4 w-4" />
-      </Button>
-      <Button asChild variant="ghost" size="sm">
-        <label htmlFor="imageUpload">
-          <ImageIcon className="h-4 w-4 cursor-pointer" />
-        </label>
-      </Button>
-      <input id="imageUpload" type="file" accept="image/*" className="hidden" onChange={addImage} />
-    </div>
-  );
-};
-
 const TechWrite = () => {
   const navigate = useNavigate();
   const { toast } = useToast();
@@ -66,26 +26,106 @@ const TechWrite = () => {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!title.trim() || !editor?.getHTML()) {
-      toast({ title: "입력 오류", description: "제목과 내용을 모두 입력해주세요.", variant: "destructive" });
+      toast({ 
+        title: "입력 오류", 
+        description: "제목과 내용을 모두 입력해주세요.", 
+        variant: "destructive" 
+      });
       return;
     }
     
     setIsSubmitting(true);
     try {
-      await axiosWithAuth.post("http://localhost:8080/api/feed", {
+      const response = await axiosWithAuth.post("/api/feed", {
         title,
         content: editor.getHTML(),
-      },
-      { 
-        headers: { "Content-Type": "application/json", access: localStorage.getItem("accessToken") } 
-    });
-      toast({ title: "성공", description: "글이 성공적으로 작성되었습니다." });
-      navigate("/tech");
+      });
+      toast({ 
+        title: "성공", 
+        description: "글이 성공적으로 작성되었습니다." 
+      });
+      navigate(`/tech/${response.data.id}`);
     } catch (error) {
-      toast({ title: "오류 발생", description: "글 작성 중 오류가 발생했습니다.", variant: "destructive" });
+      toast({ 
+        title: "오류 발생", 
+        description: "글 작성 중 오류가 발생했습니다.", 
+        variant: "destructive" 
+      });
     } finally {
       setIsSubmitting(false);
     }
+  };
+
+  const MenuBar = ({ editor }: { editor: any }) => {
+    const addImage = useCallback((event: React.ChangeEvent<HTMLInputElement>) => {
+      const file = event.target.files?.[0];
+      if (!file) return;
+
+      const reader = new FileReader();
+      reader.onload = () => {
+        if (reader.result) {
+          editor.chain().focus().setImage({ src: reader.result.toString() }).run();
+        }
+      };
+      reader.readAsDataURL(file);
+    }, [editor]);
+
+    if (!editor) return null;
+
+    return (
+      <div className="border border-white/20 rounded-t-lg p-2 flex gap-2 bg-white/5">
+        <Button 
+          variant="ghost" 
+          size="sm" 
+          onClick={() => editor.chain().focus().toggleBold().run()} 
+          className={cn(
+            "text-white hover:bg-white/10",
+            editor.isActive("bold") && "bg-white/10"
+          )}
+        >
+          <Bold className="h-4 w-4" />
+        </Button>
+        <Button 
+          variant="ghost" 
+          size="sm" 
+          onClick={() => editor.chain().focus().toggleItalic().run()} 
+          className={cn(
+            "text-white hover:bg-white/10",
+            editor.isActive("italic") && "bg-white/10"
+          )}
+        >
+          <Italic className="h-4 w-4" />
+        </Button>
+        <Button 
+          variant="ghost" 
+          size="sm" 
+          onClick={() => editor.chain().focus().toggleBulletList().run()} 
+          className={cn(
+            "text-white hover:bg-white/10",
+            editor.isActive("bulletList") && "bg-white/10"
+          )}
+        >
+          <List className="h-4 w-4" />
+        </Button>
+        <Button 
+          variant="ghost" 
+          size="sm" 
+          onClick={() => editor.chain().focus().toggleOrderedList().run()} 
+          className={cn(
+            "text-white hover:bg-white/10",
+            editor.isActive("orderedList") && "bg-white/10"
+          )}
+        >
+          <ListOrdered className="h-4 w-4" />
+        </Button>
+        <Button asChild variant="ghost" size="sm" className="text-white hover:bg-white/10">
+          <label htmlFor="imageUpload" className="cursor-pointer flex items-center justify-center">
+            <ImageIcon className="h-4 w-4" />
+          </label>
+        </Button>
+        <input id="imageUpload" type="file" accept="image/*" className="hidden" onChange={addImage} />
+      </div>
+    );
   };
 
   return (

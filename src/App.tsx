@@ -1,4 +1,3 @@
-
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
@@ -55,6 +54,14 @@ const App = () => (
             element={
               <ProtectedRoute>
                 <TechWrite />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/tech/:id"
+            element={
+              <ProtectedRoute>
+                <TechDetail />
               </ProtectedRoute>
             }
           />

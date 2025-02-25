@@ -4,6 +4,9 @@ import Navbar from "@/components/Navbar";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { useNavigate } from "react-router-dom";
+import StudyForm from "@/components/study/StudyForm";
+import { Trash2 } from "lucide-react";
+import { useToast } from "@/components/ui/use-toast";
 
 interface Study {
   id: string;
@@ -46,53 +49,88 @@ const Study = () => {
   const [selectedYear, setSelectedYear] = useState("2024");
   const [selectedSemester, setSelectedSemester] = useState("1");
   const period = `${selectedYear}-${selectedSemester}`;
+  const { toast } = useToast();
 
-  const { data: studies = [] } = useQuery({
-    queryKey: ["studies", period],
-    queryFn: async () => mockStudies[period] || []
-  });
+  const [studies, setStudies] = useState(mockStudies[period] || []);
+
+  const handleAddStudy = (newStudy: any) => {
+    const studyWithId = {
+      ...newStudy,
+      id: crypto.randomUUID(),
+    };
+    
+    setStudies([...studies, studyWithId]);
+    toast({
+      title: "스터디 생성 완료",
+      description: "새로운 스터디가 생성되었습니다.",
+    });
+  };
+
+  const handleDeleteStudy = (studyId: string) => {
+    if (window.confirm("정말로 이 스터디를 삭제하시겠습니까?")) {
+      setStudies(studies.filter(study => study.id !== studyId));
+      toast({
+        title: "스터디 삭제 완료",
+        description: "스터디가 삭제되었습니다.",
+      });
+    }
+  };
 
   return (
     <div className="min-h-screen bg-[#111827] text-white overflow-hidden">
       <Navbar />
       <div className="relative">
         <div className="container mx-auto px-4 pt-32 pb-16 relative z-10">
-          <div className="flex gap-4 mb-8">
-            <Select value={selectedYear} onValueChange={setSelectedYear}>
-              <SelectTrigger className="w-32 bg-white/5 border-white/10 text-white">
-                <SelectValue placeholder="년도" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="2024">2024년</SelectItem>
-                <SelectItem value="2023">2023년</SelectItem>
-              </SelectContent>
-            </Select>
+          <div className="flex justify-between items-center mb-8">
+            <div className="flex gap-4">
+              <Select value={selectedYear} onValueChange={setSelectedYear}>
+                <SelectTrigger className="w-32 bg-white/5 border-white/10 text-white">
+                  <SelectValue placeholder="년도" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="2024">2024년</SelectItem>
+                  <SelectItem value="2023">2023년</SelectItem>
+                </SelectContent>
+              </Select>
 
-            <Select value={selectedSemester} onValueChange={setSelectedSemester}>
-              <SelectTrigger className="w-32 bg-white/5 border-white/10 text-white">
-                <SelectValue placeholder="학기" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="1">1학기</SelectItem>
-                <SelectItem value="2">2학기</SelectItem>
-              </SelectContent>
-            </Select>
+              <Select value={selectedSemester} onValueChange={setSelectedSemester}>
+                <SelectTrigger className="w-32 bg-white/5 border-white/10 text-white">
+                  <SelectValue placeholder="학기" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="1">1학기</SelectItem>
+                  <SelectItem value="2">2학기</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+            <StudyForm onSubmit={handleAddStudy} />
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             {studies.map((study) => (
               <Card 
                 key={study.id}
-                className="hover:shadow-lg transition-shadow cursor-pointer bg-white/10 backdrop-blur-md"
+                className="hover:shadow-lg transition-shadow cursor-pointer bg-white/10 backdrop-blur-md relative group"
                 onClick={() => navigate(`/study/${study.id}`)}
               >
-                <CardHeader>
-                  <CardTitle>{study.title}</CardTitle>
-                  <CardDescription>스터디장: {study.leader}</CardDescription>
-                </CardHeader>
-                <CardContent>
-                  <p className="text-gray-600">{study.description}</p>
-                  <p className="mt-2 text-sm text-gray-500">참여 인원: {study.members}명</p>
+                <Button
+                  variant="outline"
+                  size="icon"
+                  className="absolute top-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity bg-red-500/10 border-red-500/20 hover:bg-red-500/20 text-red-500"
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    handleDeleteStudy(study.id);
+                  }}
+                >
+                  <Trash2 className="h-4 w-4" />
+                </Button>
+                <CardContent className="p-6">
+                  <h3 className="text-xl font-semibold text-white">{study.title}</h3>
+                  <p className="text-gray-300 mt-2">{study.description}</p>
+                  <div className="mt-4 flex justify-between items-center">
+                    <p className="text-sm text-gray-400">스터디장: {study.leader}</p>
+                    <p className="text-sm text-gray-400">참여 인원: {study.members}명</p>
+                  </div>
                 </CardContent>
               </Card>
             ))}

@@ -1,10 +1,12 @@
 
 import axios, { AxiosError, InternalAxiosRequestConfig } from 'axios';
 import { useEffect } from 'react';
-
-const baseURL = import.meta.env.VITE_API_URL || 'http://localhost:3000';
+import { useNavigate } from 'react-router-dom';
 
 export const useAxiosWithAuth = () => {
+  const navigate = useNavigate();
+  const baseURL = import.meta.env.VITE_API_URL || 'http://localhost:8080';
+
   const axiosInstance = axios.create({
     baseURL,
     timeout: 5000,
@@ -27,15 +29,27 @@ export const useAxiosWithAuth = () => {
       async (error: AxiosError) => {
         const originalRequest = error.config;
         
-        if (error.response?.status === 401 && originalRequest) {
+        if (error.response?.status === 401 && originalRequest && !originalRequest.headers._retry) {
+          originalRequest.headers._retry = true;
+          
           try {
             // 토큰 재발급 시도
-            const response = await axios.post(`${baseURL}/api/auth/reissue`, {}, {
-              withCredentials: true // 쿠키를 위해 필요
-            });
+            const response = await axios.post(
+              `${baseURL}/api/auth/reissue`,
+              {},
+              {
+                withCredentials: true, // 쿠키 전송을 위해 필요
+                headers: {
+                  'Refresh': localStorage.getItem('refreshToken')
+                }
+              }
+            );
             
             const newAccessToken = response.data.accessToken;
+            const newRefreshToken = response.data.refreshToken;
+            
             localStorage.setItem('accessToken', newAccessToken);
+            localStorage.setItem('refreshToken', newRefreshToken);
             
             // 원래 요청 재시도
             if (originalRequest.headers) {
@@ -45,7 +59,8 @@ export const useAxiosWithAuth = () => {
           } catch (refreshError) {
             // 재발급 실패시 로그인 페이지로 리다이렉트
             localStorage.removeItem('accessToken');
-            window.location.href = '/login';
+            localStorage.removeItem('refreshToken');
+            navigate('/login');
             return Promise.reject(refreshError);
           }
         }
@@ -58,7 +73,7 @@ export const useAxiosWithAuth = () => {
       axiosInstance.interceptors.request.eject(requestInterceptor);
       axiosInstance.interceptors.response.eject(responseInterceptor);
     };
-  }, []);
+  }, [navigate, baseURL]);
 
   return axiosInstance;
 };
