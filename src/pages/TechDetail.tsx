@@ -99,19 +99,19 @@ const TechDetail = () => {
                 {isAuthor && (
                   <div className="flex gap-2">
                     <Button
-                      variant="outline"
+                      variant="secondary"
                       size="icon"
                       onClick={handleEdit}
-                      className="text-white border-white/20 hover:bg-white/10 font-semibold"
+                      className="bg-white/10 text-white hover:bg-white/20"
                     >
                       <Edit2 className="h-4 w-4" />
                     </Button>
                     <Button
-                      variant="outline"
+                      variant="secondary"
                       size="icon"
                       onClick={handleDelete}
                       disabled={isDeleting}
-                      className="text-red-500 border-red-500/20 hover:bg-red-500/10 font-semibold"
+                      className="bg-red-500/10 text-red-500 hover:bg-red-500/20"
                     >
                       <Trash2 className="h-4 w-4" />
                     </Button>

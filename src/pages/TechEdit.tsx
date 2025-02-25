@@ -1,5 +1,5 @@
 
-import { useState } from "react";
+import { useState, useCallback } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
 import { useEditor, EditorContent } from "@tiptap/react";
@@ -25,12 +25,13 @@ const TechEdit = () => {
   const editor = useEditor({
     extensions: [StarterKit, Image],
     content: "",
+    editorProps: { attributes: { class: 'prose mx-auto focus:outline-none min-h-[300px] p-4' } },
   });
 
   const { data: post } = useQuery({
     queryKey: ["feedId", feedId],
     queryFn: async () => {
-      const response = await axiosWithAuth.get(`/api/feeds/${feedId}`,{
+      const response = await axiosWithAuth.get(`/api/feeds/${feedId}`, {
         headers: {
           "Content-Type": "application/json",
           access: localStorage.getItem("accessToken") ?? ""
@@ -39,7 +40,7 @@ const TechEdit = () => {
       return response.data.response;
     },
     meta: {
-      onSuccess: (data: any) => {
+      onSuccess: (data) => {
         setTitle(data.title);
         editor?.commands.setContent(data.content);
       }
@@ -81,6 +82,19 @@ const TechEdit = () => {
   };
 
   const MenuBar = ({ editor }: { editor: any }) => {
+    const addImage = useCallback((event: React.ChangeEvent<HTMLInputElement>) => {
+      const file = event.target.files?.[0];
+      if (!file) return;
+
+      const reader = new FileReader();
+      reader.onload = () => {
+        if (reader.result) {
+          editor.chain().focus().setImage({ src: reader.result.toString() }).run();
+        }
+      };
+      reader.readAsDataURL(file);
+    }, [editor]);
+
     if (!editor) return null;
 
     return (
