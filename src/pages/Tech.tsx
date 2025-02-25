@@ -10,9 +10,6 @@ import TechBlogCard from "@/components/TechBlogCard";
 import useDebounce from "@/hooks/useDebounce";
 import { useNavigate } from "react-router-dom"
 
-
-
-
 interface TechPost {
   id: string;
   title: string;
@@ -20,7 +17,6 @@ interface TechPost {
   uploadAt: string;
   author: string;
 }
-
 
 const Tech = () => {
   const navigate = useNavigate();
