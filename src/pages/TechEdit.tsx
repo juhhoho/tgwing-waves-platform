@@ -1,6 +1,7 @@
 
-import { useState, useCallback } from "react";
-import { useNavigate } from "react-router-dom";
+import { useState } from "react";
+import { useParams, useNavigate } from "react-router-dom";
+import { useQuery } from "@tanstack/react-query";
 import { useEditor, EditorContent } from "@tiptap/react";
 import StarterKit from "@tiptap/starter-kit";
 import Image from "@tiptap/extension-image";
@@ -12,7 +13,8 @@ import { cn } from "@/lib/utils";
 import Navbar from "@/components/Navbar";
 import { Bold, Italic, List, ListOrdered, Image as ImageIcon } from "lucide-react";
 
-const TechWrite = () => {
+const TechEdit = () => {
+  const { id } = useParams();
   const navigate = useNavigate();
   const { toast } = useToast();
   const axiosWithAuth = useAxiosWithAuth();
@@ -22,40 +24,48 @@ const TechWrite = () => {
   const editor = useEditor({
     extensions: [StarterKit, Image],
     content: "",
-    editorProps: { attributes: { class: 'prose mx-auto focus:outline-none min-h-[300px] p-4' } },
+  });
+
+  const { data: post } = useQuery({
+    queryKey: ["tech-post", id],
+    queryFn: async () => {
+      const response = await axiosWithAuth.get(`/api/feeds/${id}`);
+      return response.data;
+    },
+    onSuccess: (data) => {
+      setTitle(data.title);
+      editor?.commands.setContent(data.content);
+    }
   });
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!title.trim() || !editor?.getHTML()) {
-      toast({ 
-        title: "입력 오류", 
-        description: "제목과 내용을 모두 입력해주세요.", 
-        variant: "destructive" 
+      toast({
+        title: "입력 오류",
+        description: "제목과 내용을 모두 입력해주세요.",
+        variant: "destructive"
       });
       return;
     }
-    
+
     setIsSubmitting(true);
     try {
-      const response = await axiosWithAuth.post("/api/feed", {
+      await axiosWithAuth.patch(`/api/feeds/${id}`, {
         title,
-        content: editor.getHTML(),
-      },
-      { 
-        headers: { "Content-Type": "application/json", access: localStorage.getItem("accessToken") } 
-      }
-    );
-      toast({ 
-        title: "성공", 
-        description: "글이 성공적으로 작성되었습니다." 
+        content: editor.getHTML()
       });
-      navigate(`/tech`);
+      
+      toast({
+        title: "수정 완료",
+        description: "글이 성공적으로 수정되었습니다."
+      });
+      navigate("/tech");
     } catch (error) {
-      toast({ 
-        title: "오류 발생", 
-        description: "글 작성 중 오류가 발생했습니다.", 
-        variant: "destructive" 
+      toast({
+        title: "수정 실패",
+        description: "글 수정 중 오류가 발생했습니다.",
+        variant: "destructive"
       });
     } finally {
       setIsSubmitting(false);
@@ -63,19 +73,6 @@ const TechWrite = () => {
   };
 
   const MenuBar = ({ editor }: { editor: any }) => {
-    const addImage = useCallback((event: React.ChangeEvent<HTMLInputElement>) => {
-      const file = event.target.files?.[0];
-      if (!file) return;
-
-      const reader = new FileReader();
-      reader.onload = () => {
-        if (reader.result) {
-          editor.chain().focus().setImage({ src: reader.result.toString() }).run();
-        }
-      };
-      reader.readAsDataURL(file);
-    }, [editor]);
-
     if (!editor) return null;
 
     return (
@@ -129,7 +126,7 @@ const TechWrite = () => {
             <ImageIcon className="h-4 w-4" />
           </label>
         </Button>
-        <input id="imageUpload" type="file" accept="image/*" className="hidden" onChange={addImage} />
+        <input id="imageUpload" type="file" accept="image/*" className="hidden" />
       </div>
     );
   };
@@ -149,6 +146,13 @@ const TechWrite = () => {
                   onChange={(e) => setTitle(e.target.value)} 
                   className="text-2xl font-semibold border-0 rounded-t-lg rounded-b-none focus-visible:ring-0 bg-white/5 border-white/10 text-white placeholder:text-gray-400" 
                 />
+                
+                <div className="flex items-center space-x-4 px-4 py-2 text-gray-300 bg-white/5 border-t border-white/10">
+                  <span>{post?.author}</span>
+                  <span>•</span>
+                  <time>{new Date(post?.uploadAt).toLocaleDateString()}</time>
+                </div>
+
                 <div className="border-t border-white/10">
                   <MenuBar editor={editor} />
                   <div className="bg-white/5 rounded-b-lg">
@@ -160,7 +164,7 @@ const TechWrite = () => {
                 <Button 
                   type="button" 
                   variant="outline" 
-                  onClick={() => navigate("/tech")} 
+                  onClick={() => navigate(`/tech/${id}`)} 
                   className="text-white border-white/20 hover:bg-white/10 font-semibold"
                 >
                   취소
@@ -176,7 +180,8 @@ const TechWrite = () => {
             </form>
           </div>
         </div>
-
+        
+        {/* Decorative waves */}
         <div className="absolute bottom-0 left-0 right-0 h-64 z-0">
           <svg className="w-full h-full" viewBox="0 0 1440 320" xmlns="http://www.w3.org/2000/svg">
             <path 
@@ -199,4 +204,4 @@ const TechWrite = () => {
   );
 };
 
-export default TechWrite;
+export default TechEdit;

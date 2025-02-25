@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
@@ -24,7 +23,6 @@ const TechDetail = () => {
   const axiosWithAuth = useAxiosWithAuth();
   const [isDeleting, setIsDeleting] = useState(false);
 
-
   const { data: post, isLoading } = useQuery({
     queryKey: ["feedId", feedId],
     queryFn: async () => {
@@ -36,8 +34,7 @@ const TechDetail = () => {
       });
       return response.data.response;
     }
-});
-
+  });
 
   const handleEdit = () => {
     navigate(`/tech/edit/${id}`);
@@ -83,54 +80,48 @@ const TechDetail = () => {
       <Navbar />
       <div className="relative">
         <div className="container mx-auto px-4 pt-32 pb-16 relative z-10">
-          <div className="max-w-4xl mx-auto bg-white/10 backdrop-blur-md rounded-lg p-6">
-            <div className="flex justify-between items-start mb-6">
-              <h1 className="text-3xl font-bold">{post?.title}</h1>
-              {isAuthor && (
-                <div className="flex gap-2">
-                  <Button
-                    variant="outline"
-                    size="icon"
-                    onClick={handleEdit}
-                    className="text-white border-white/20 hover:bg-white/10"
-                  >
-                    <Edit2 className="h-4 w-4" />
-                  </Button>
-                  <Button
-                    variant="outline"
-                    size="icon"
-                    onClick={handleDelete}
-                    disabled={isDeleting}
-                    className="text-red-500 border-red-500/20 hover:bg-red-500/10"
-                  >
-                    <Trash2 className="h-4 w-4" />
-                  </Button>
+          <div className="max-w-4xl mx-auto">
+            <div className="bg-white/10 backdrop-blur-md rounded-lg p-6 shadow-lg">
+              <div className="flex justify-between items-start mb-6 border-b border-white/10 pb-6">
+                <div>
+                  <h1 className="text-3xl font-bold mb-4">{post?.title}</h1>
+                  <div className="flex items-center space-x-4 text-gray-300">
+                    <span>{post?.author}</span>
+                    <span>•</span>
+                    <time>{new Date(post?.uploadAt).toLocaleDateString()}</time>
+                  </div>
                 </div>
-              )}
-            </div>
-            
-            <div className="flex items-center space-x-4 mb-6 text-gray-300">
-              <span>{post?.author}</span>
-              <span>•</span>
-              <time>{new Date(post?.uploadAt).toLocaleDateString()}</time>
-            </div>
+                {isAuthor && (
+                  <div className="flex gap-2">
+                    <Button
+                      variant="outline"
+                      size="icon"
+                      onClick={handleEdit}
+                      className="text-white border-white/20 hover:bg-white/10 font-semibold"
+                    >
+                      <Edit2 className="h-4 w-4" />
+                    </Button>
+                    <Button
+                      variant="outline"
+                      size="icon"
+                      onClick={handleDelete}
+                      disabled={isDeleting}
+                      className="text-red-500 border-red-500/20 hover:bg-red-500/10 font-semibold"
+                    >
+                      <Trash2 className="h-4 w-4" />
+                    </Button>
+                  </div>
+                )}
+              </div>
 
-            {post?.thumbnail && (
-              <img
-                src={post.thumbnail}
-                alt={post.title}
-                className="w-full h-64 object-cover rounded-lg mb-6"
+              <div 
+                className="prose prose-invert max-w-none pt-6"
+                dangerouslySetInnerHTML={{ __html: post?.content }}
               />
-            )}
-
-            <div 
-              className="prose prose-invert max-w-none"
-              dangerouslySetInnerHTML={{ __html: post?.content }}
-            />
+            </div>
           </div>
         </div>
 
-        {/* Decorative waves */}
         <div className="absolute bottom-0 left-0 right-0 h-64 z-0">
           <svg className="w-full h-full" viewBox="0 0 1440 320" xmlns="http://www.w3.org/2000/svg">
             <path 
