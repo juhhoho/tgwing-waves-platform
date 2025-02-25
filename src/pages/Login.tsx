@@ -26,12 +26,10 @@ const Login = () => {
 
       const accessToken = response.headers["access"];
       console.log(accessToken);
-      console.log(response.data.response.username);
     
       if (!accessToken) {
         throw new Error("Access Token이 응답 헤더에 없음");
       }
-      console.log(accessToken);
       localStorage.setItem('accessToken', accessToken);
       localStorage.setItem('username', response.data.response.username);
       

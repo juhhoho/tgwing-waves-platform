@@ -45,7 +45,12 @@ const TechDetail = () => {
     
     setIsDeleting(true);
     try {
-      await axiosWithAuth.delete(`/api/feeds/${id}`);
+      await axiosWithAuth.delete(`/api/feeds/${id}`,{
+        headers: {
+            "Content-Type": "application/json",
+            access: localStorage.getItem("accessToken") ?? ""
+        }
+      });
       toast({
         title: "삭제 완료",
         description: "게시글이 성공적으로 삭제되었습니다.",

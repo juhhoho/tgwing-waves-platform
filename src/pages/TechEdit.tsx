@@ -15,6 +15,7 @@ import { Bold, Italic, List, ListOrdered, Image as ImageIcon } from "lucide-reac
 
 const TechEdit = () => {
   const { id } = useParams();
+  const feedId = Number(id);
   const navigate = useNavigate();
   const { toast } = useToast();
   const axiosWithAuth = useAxiosWithAuth();
@@ -27,10 +28,15 @@ const TechEdit = () => {
   });
 
   const { data: post } = useQuery({
-    queryKey: ["tech-post", id],
+    queryKey: ["feedId", feedId],
     queryFn: async () => {
-      const response = await axiosWithAuth.get(`/api/feeds/${id}`);
-      return response.data;
+      const response = await axiosWithAuth.get(`/api/feeds/${feedId}`,{
+        headers: {
+          "Content-Type": "application/json",
+          access: localStorage.getItem("accessToken") ?? ""
+        }
+      });
+      return response.data.response;
     },
     meta: {
       onSuccess: (data: any) => {
