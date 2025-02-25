@@ -11,6 +11,8 @@ import { useAxiosWithAuth } from "@/hooks/useAxiosWithAuth";
 import { cn } from "@/lib/utils";
 import Navbar from "@/components/Navbar";
 import { Bold, Italic, List, ListOrdered, Image as ImageIcon } from "lucide-react";
+import axios from "axios";
+import { v4 as uuidv4 } from "uuid";
 
 const TechWrite = () => {
   const navigate = useNavigate();
@@ -40,13 +42,16 @@ const TechWrite = () => {
     setIsSubmitting(true);
     try {
       let finalThumbnail = thumbnail;
+      console.log("kkkkkk"+finalThumbnail);
       if(thumbnail.length == 0){
         finalThumbnail = "https://demo-bucket-605134439665.s3.ap-northeast-2.amazonaws.com/liz.png";
       }
+
       
       await axiosWithAuth.post("/api/feed", {
         title,
         content: editor.getHTML(),
+        plainText: editor.getText(),
         thumbnail: finalThumbnail
       },
       { 
@@ -67,20 +72,44 @@ const TechWrite = () => {
     } finally {
       setIsSubmitting(false);
     }
+
   };
 
   const MenuBar = ({ editor }: { editor: any }) => {
-    const addImage = useCallback((event: React.ChangeEvent<HTMLInputElement>) => {
+    const addImage = useCallback(async (event: React.ChangeEvent<HTMLInputElement>) => {
       const file = event.target.files?.[0];
+      const imageName = `${uuidv4()}-${file.name}`;
+
       if (!file) return;
 
-      const reader = new FileReader();
-      reader.onload = () => {
-        if (reader.result) {
-          editor.chain().focus().setImage({ src: reader.result.toString() }).run();
-        }
-      };
-      reader.readAsDataURL(file);
+      try {
+        // 1️⃣ Presigned URL 요청
+        let  response  = await axios.get("http://localhost:8080/api/image/presignedUrl/upload", {
+          params: { imageName: imageName },
+          headers: {
+            "Content-Type": "application/json",
+            access: localStorage.getItem("accessToken") ?? ""
+          }
+        });
+
+    
+        const presignedUrl = response.data.response.presignedUrl;
+    
+        // 2️⃣ Presigned URL로 S3에 이미지 업로드
+        await axios.put(presignedUrl, file, {
+          headers: { 
+            "Content-Type": file.type,
+            access: localStorage.getItem("accessToken") ?? ""
+           },
+        });
+    
+        // 3️⃣ 업로드된 이미지 URL을 에디터에 삽입
+        const imageUrl = `https://demo-bucket-605134439665.s3.ap-northeast-2.amazonaws.com/${imageName}`;
+    
+        editor.chain().focus().setImage({ src: imageUrl }).run();
+      } catch (error) {
+        console.error("이미지 업로드 실패:", error);
+      }
     }, [editor]);
 
     if (!editor) return null;
@@ -141,6 +170,48 @@ const TechWrite = () => {
     );
   };
 
+  const handleThumbnailChange = useCallback(async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+  
+    if (!file) {
+      const imageUrl = `https://demo-bucket-605134439665.s3.ap-northeast-2.amazonaws.com/liz.png`;
+      setThumbnail(imageUrl);
+      return; // 파일이 없으면 여기서 함수 종료
+    }
+  
+    const thumbnailImageName = `${uuidv4()}-${file.name}`;
+    console.log("선택한 파일 이름:", file.name); // 파일 이름 출력
+  
+    try {
+      // 1️⃣ Presigned URL 요청
+      const response = await axios.get("http://localhost:8080/api/image/presignedUrl/upload", {
+        params: { imageName: thumbnailImageName },
+        headers: {
+          "Content-Type": "application/json",
+          access: localStorage.getItem("accessToken") ?? "",
+        },
+      });
+  
+      const presignedUrl = response.data.response.presignedUrl;
+  
+      // 2️⃣ Presigned URL로 S3에 이미지 업로드
+      await axios.put(presignedUrl, file, {
+        headers: {
+          "Content-Type": file.type,
+          access: localStorage.getItem("accessToken") ?? "",
+        },
+      });
+  
+      // 3️⃣ 업로드된 이미지 URL을 썸네일로 설정
+      const imageUrl = `https://demo-bucket-605134439665.s3.ap-northeast-2.amazonaws.com/${thumbnailImageName}`;
+      setThumbnail(imageUrl);
+    } catch (error) {
+      console.error("썸네일 업로드 실패:", error);
+    }
+  }, [setThumbnail]); 
+  
+  
+
   return (
     <div className="min-h-screen bg-[#111827] text-white overflow-hidden">
       <Navbar />
@@ -165,28 +236,17 @@ const TechWrite = () => {
                 <div className="border-t border-white/10 p-4 bg-white/5">
                   <label className="block text-sm font-medium text-gray-200 mb-2">썸네일</label>
                   <div className="flex gap-4 items-center">
-                    <input
-                      type="file"
-                      accept="image/*"
-                      onChange={(e) => {
-                        const file = e.target.files?.[0];
-                        if (file) {
-                          const reader = new FileReader();
-                          reader.onload = () => {
-                            if (reader.result) {
-                              setThumbnail(reader.result.toString());
-                            }
-                          };
-                          reader.readAsDataURL(file);
-                        }
-                      }}
-                      className="block w-full text-sm text-gray-300
-                        file:mr-4 file:py-2 file:px-4
-                        file:rounded-md file:border-0
-                        file:text-sm file:font-semibold
-                        file:bg-white/10 file:text-white
-                        hover:file:bg-white/20"
-                    />
+                  <input
+                    type="file"
+                    accept="image/*"
+                    onChange={handleThumbnailChange}
+                    className="block w-full text-sm text-gray-300
+                      file:mr-4 file:py-2 file:px-4
+                      file:rounded-md file:border-0
+                      file:text-sm file:font-semibold
+                      file:bg-white/10 file:text-white
+                      hover:file:bg-white/20"
+/>
                     {thumbnail && (
                       <img
                         src={thumbnail}

@@ -46,6 +46,7 @@
     "@tiptap/starter-kit": "^2.11.5",
     "@uiw/react-md-editor": "^4.0.5",
     "axios": "^1.7.9",
+    "buffer": "^6.0.3",
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",
     "cmdk": "^1.0.0",

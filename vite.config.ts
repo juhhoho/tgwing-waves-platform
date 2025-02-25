@@ -3,14 +3,13 @@ import react from "@vitejs/plugin-react-swc";
 import path from "path";
 import { componentTagger } from "lovable-tagger";
 
-// https://vitejs.dev/config/
 export default defineConfig(({ mode }) => ({
   server: {
     host: "::",
     port: 3000,
     proxy: {
       "/api": {
-        target: "http://localhost:8080", // ✅ API 요청을 8080 포트로 프록시
+        target: "http://localhost:8080",
         changeOrigin: true,
         rewrite: (path) => path.replace(/^\/api/, ""),
       },
@@ -18,12 +17,19 @@ export default defineConfig(({ mode }) => ({
   },
   plugins: [
     react(),
-    mode === 'development' &&
-    componentTagger(),
+    mode === "development" && componentTagger(),
   ].filter(Boolean),
   resolve: {
     alias: {
       "@": path.resolve(__dirname, "./src"),
+    },
+  },
+  optimizeDeps: {
+    include: ["buffer"], // 🔹 `buffer`를 번들링 대상에 포함
+  },
+  build: {
+    rollupOptions: {
+      external: ["buffer"], // 🔹 `buffer`를 외부 모듈로 처리
     },
   },
 }));
