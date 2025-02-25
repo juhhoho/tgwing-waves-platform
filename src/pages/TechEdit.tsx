@@ -25,6 +25,14 @@ const TechEdit = () => {
   const editor = useEditor({
     extensions: [StarterKit, Image],
     content: "",
+    editorProps: {
+      attributes: {
+        class: "placeholder-gray-500", // Tailwind 스타일 적용 가능
+      },
+    },
+    onCreate: ({ editor }) => {
+      editor.commands.setContent(post?.content || "<p>내용을 입력하세요...</p>");
+    },
   });
 
   const { data: post } = useQuery({
@@ -44,7 +52,12 @@ const TechEdit = () => {
         editor?.commands.setContent(data.content);
       }
     }
+    
   });
+
+  console.log("title: " + post.title);
+  console.log("content: " + post.content);
+  
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -62,6 +75,11 @@ const TechEdit = () => {
       await axiosWithAuth.patch(`/api/feeds/${id}`, {
         title,
         content: editor.getHTML()
+      },{
+        headers: {
+          "Content-Type": "application/json",
+          access: localStorage.getItem("accessToken") ?? ""
+        }
       });
       
       toast({
@@ -149,7 +167,7 @@ const TechEdit = () => {
               <div className="bg-white/10 backdrop-blur-md rounded-lg shadow-lg">
                 <Input 
                   type="text" 
-                  placeholder="제목을 입력하세요" 
+                  placeholder="제목을 입력하세요"
                   value={title} 
                   onChange={(e) => setTitle(e.target.value)} 
                   className="text-2xl font-semibold border-0 rounded-t-lg rounded-b-none focus-visible:ring-0 bg-white/5 border-white/10 text-white placeholder:text-gray-400" 

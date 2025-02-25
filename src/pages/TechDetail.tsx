@@ -37,7 +37,7 @@ const TechDetail = () => {
   });
 
   const handleEdit = () => {
-    navigate(`/tech/edit/${id}`);
+    navigate(`/tech/edit/${feedId}`);
   };
 
   const handleDelete = async () => {
@@ -45,7 +45,7 @@ const TechDetail = () => {
     
     setIsDeleting(true);
     try {
-      await axiosWithAuth.delete(`/api/feeds/${id}`,{
+      await axiosWithAuth.delete(`/api/feeds/${feedId}`,{
         headers: {
             "Content-Type": "application/json",
             access: localStorage.getItem("accessToken") ?? ""
