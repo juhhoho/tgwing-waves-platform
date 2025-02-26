@@ -1,9 +1,13 @@
 import { useParams } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
+import { Edit2, Trash2 } from "lucide-react";
 import Navbar from "@/components/Navbar";
+import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Calendar, Users, BookOpen, Target, Award } from "lucide-react";
+import { useNavigate } from "react-router-dom";
+import { useToast } from "@/components/ui/use-toast";
 
 interface StudyDetail {
   id: string;
@@ -69,11 +73,33 @@ const mockStudyDetail: StudyDetail = {
 
 const StudyDetail = () => {
   const { id } = useParams<{ id: string }>();
-
   const { data: study, isLoading } = useQuery({
     queryKey: ["study", id],
     queryFn: async () => mockStudyDetail
   });
+
+  const isLeader = study?.leader.name === localStorage.getItem("username");
+  const navigate = useNavigate();
+  const { toast } = useToast();
+
+  const handleDelete = async () => {
+    if (!window.confirm("정말로 이 스터디를 삭제하시겠습니까?")) return;
+    
+    try {
+      // API call here
+      toast({
+        title: "스터디 삭제",
+        description: "스터디가 성공적으로 삭제되었습니다."
+      });
+      navigate("/study");
+    } catch (error) {
+      toast({
+        title: "오류",
+        description: "스터디 삭제 중 오류가 발생했습니다.",
+        variant: "destructive"
+      });
+    }
+  };
 
   if (isLoading) return <div>Loading...</div>;
   if (!study) return <div>Study not found</div>;
@@ -83,10 +109,31 @@ const StudyDetail = () => {
       <Navbar />
       <div className="relative">
         <div className="container mx-auto px-4 pt-32 pb-16 relative z-10">
-          {/* 스터디 기본 정보 */}
-          <Card className="mb-8 bg-white/10 backdrop-blur-md">
+          <Card className="mb-8 bg-white/10 backdrop-blur-md relative">
             <CardHeader>
-              <CardTitle className="text-3xl">{study.title}</CardTitle>
+              <div className="flex justify-between items-start">
+                <CardTitle className="text-3xl">{study.title}</CardTitle>
+                {isLeader && (
+                  <div className="flex gap-2">
+                    <Button
+                      variant="ghost"
+                      size="icon"
+                      onClick={() => navigate(`/study/edit/${study.id}`)}
+                      className="text-white hover:bg-white/10"
+                    >
+                      <Edit2 className="h-4 w-4" />
+                    </Button>
+                    <Button
+                      variant="ghost"
+                      size="icon"
+                      onClick={handleDelete}
+                      className="text-red-500 hover:bg-red-500/10"
+                    >
+                      <Trash2 className="h-4 w-4" />
+                    </Button>
+                  </div>
+                )}
+              </div>
             </CardHeader>
             <CardContent>
               <p className="text-gray-600 mb-6">{study.description}</p>
@@ -107,7 +154,6 @@ const StudyDetail = () => {
             </CardContent>
           </Card>
 
-          {/* 스터디 목표 & 커리큘럼 */}
           <div className="grid grid-cols-1 md:grid-cols-2 gap-8 mb-8">
             <Card>
               <CardHeader>
@@ -148,7 +194,6 @@ const StudyDetail = () => {
             </Card>
           </div>
 
-          {/* 스터디 성과 */}
           <Card className="mb-8 bg-white/10 backdrop-blur-md">
             <CardHeader>
               <CardTitle className="flex items-center gap-2">
@@ -168,7 +213,6 @@ const StudyDetail = () => {
             </CardContent>
           </Card>
 
-          {/* 스터디 멤버 */}
           <Card className="bg-white/10 backdrop-blur-md">
             <CardHeader>
               <CardTitle className="flex items-center gap-2">
@@ -195,7 +239,6 @@ const StudyDetail = () => {
           </Card>
         </div>
 
-        {/* Decorative waves */}
         <div className="absolute bottom-0 left-0 right-0 h-64 z-0">
           <svg className="w-full h-full" viewBox="0 0 1440 320" xmlns="http://www.w3.org/2000/svg">
             <path 

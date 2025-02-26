@@ -6,7 +6,7 @@ import Navbar from "@/components/Navbar";
 import { Button } from "@/components/ui/button";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Card, CardContent } from "@/components/ui/card";
-import StudyForm from "@/components/study/StudyForm";
+import StudyFormMultistep from "@/components/study/StudyFormMultistep";
 import { Trash2 } from "lucide-react";
 import { useToast } from "@/components/ui/use-toast";
 
@@ -105,7 +105,7 @@ const Study = () => {
                 </SelectContent>
               </Select>
             </div>
-            <StudyForm onSubmit={handleAddStudy} />
+            <StudyFormMultistep onSubmit={handleAddStudy} />
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
