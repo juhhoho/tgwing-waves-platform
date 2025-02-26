@@ -109,12 +109,7 @@ const TechDetail = () => {
 
   const updateCommentMutation = useMutation({
     mutationFn: async ({ commentId, content }: { commentId: string; content: string }) => {
-      const response = await axiosWithAuth.patch(`/api/feeds/${feedId}/comments/${commentId}`, { content },{
-        headers: {
-          "Content-Type": "application/json",
-          access: localStorage.getItem("accessToken") ?? "",
-        },
-      });
+      const response = await axiosWithAuth.patch(`/api/feeds/${feedId}/comments/${commentId}`, { content });
       return response.data;
     },
     onSuccess: () => {
@@ -271,6 +266,9 @@ const TechDetail = () => {
   };
 
   const CommentComponent = ({ comment }: { comment: Comment }) => {
+    const [localEditContent, setLocalEditContent] = useState(comment.content);
+    const [localReplyContent, setLocalReplyContent] = useState("");
+
     const isAuthor = comment.author === localStorage.getItem("username");
 
     return (
@@ -311,11 +309,16 @@ const TechDetail = () => {
             {editingComment?.id === comment.id ? (
               <div className="mt-2 flex gap-2">
                 <Input
-                  value={editingComment.content}
-                  onChange={(e) => setEditingComment({ ...editingComment, content: e.target.value })}
+                  value={localEditContent}
+                  onChange={(e) => setLocalEditContent(e.target.value)}
                   className="bg-white/5 border-white/10 text-white"
                 />
-                <Button onClick={handleUpdateComment}>저장</Button>
+                <Button onClick={() => {
+                  updateCommentMutation.mutate({
+                    commentId: comment.id,
+                    content: localEditContent
+                  });
+                }}>저장</Button>
                 <Button variant="outline" onClick={() => setEditingComment(null)}>취소</Button>
               </div>
             ) : (
@@ -412,12 +415,18 @@ const TechDetail = () => {
           {showReplyInput[comment.id] && (
             <div className="flex gap-2 mt-2">
               <Input
-                value={newReply[comment.id] || ""}
-                onChange={(e) => setNewReply({ ...newReply, [comment.id]: e.target.value })}
+                value={localReplyContent}
+                onChange={(e) => setLocalReplyContent(e.target.value)}
                 placeholder="답글을 입력하세요"
                 className="bg-white/5 border-white/10 text-white"
               />
-              <Button onClick={() => handleReplySubmit(comment.id)}>답글 작성</Button>
+              <Button onClick={() => {
+                createReplyMutation.mutate({
+                  commentId: comment.id,
+                  content: localReplyContent
+                });
+                setLocalReplyContent("");
+              }}>답글 작성</Button>
             </div>
           )}
         </div>

@@ -1,5 +1,4 @@
-
-import { useState, useCallback } from "react";
+import { useState, useCallback, useRef } from "react";
 import { useNavigate } from "react-router-dom";
 import { useEditor, EditorContent } from "@tiptap/react";
 import StarterKit from "@tiptap/starter-kit";
@@ -76,6 +75,8 @@ const TechWrite = () => {
   };
 
   const MenuBar = ({ editor }: { editor: any }) => {
+    const fileInputRef = useRef<HTMLInputElement>(null);
+
     const addImage = useCallback(async (event: React.ChangeEvent<HTMLInputElement>) => {
       const file = event.target.files?.[0];
       const imageName = `${uuidv4()}-${file.name}`;
@@ -91,7 +92,41 @@ const TechWrite = () => {
             access: localStorage.getItem("accessToken") ?? ""
           }
         });
+    
+        const presignedUrl = response.data.response.presignedUrl;
+    
+        // 2️⃣ Presigned URL로 S3에 이미지 업로드
+        await axios.put(presignedUrl, file, {
+          headers: { 
+            "Content-Type": file.type,
+            access: localStorage.getItem("accessToken") ?? ""
+           },
+        });
+    
+        // 3️⃣ 업로드된 이미지 URL을 에디터에 삽입
+        const imageUrl = `https://demo-bucket-605134439665.s3.ap-northeast-2.amazonaws.com/${imageName}`;
+    
+        editor.chain().focus().setImage({ src: imageUrl }).run();
+      } catch (error) {
+        console.error("이미지 업로드 실패:", error);
+      }
+    }, [editor]);
 
+    const setLink = useCallback(async (event: React.ChangeEvent<HTMLInputElement>) => {
+      const file = event.target.files?.[0];
+      const imageName = `${uuidv4()}-${file.name}`;
+
+      if (!file) return;
+
+      try {
+        // 1️⃣ Presigned URL 요청
+        let  response  = await axios.get("http://localhost:8080/api/image/presignedUrl/upload", {
+          params: { imageName: imageName },
+          headers: {
+            "Content-Type": "application/json",
+            access: localStorage.getItem("accessToken") ?? ""
+          }
+        });
     
         const presignedUrl = response.data.response.presignedUrl;
     
@@ -115,57 +150,61 @@ const TechWrite = () => {
     if (!editor) return null;
 
     return (
-      <div className="border border-white/20 rounded-t-lg p-2 flex gap-2 bg-white/5">
-        <Button 
-          variant="ghost" 
-          size="sm" 
-          onClick={() => editor.chain().focus().toggleBold().run()} 
-          className={cn(
-            "text-white hover:bg-white/10",
-            editor.isActive("bold") && "bg-white/10"
-          )}
-        >
-          <Bold className="h-4 w-4" />
-        </Button>
-        <Button 
-          variant="ghost" 
-          size="sm" 
-          onClick={() => editor.chain().focus().toggleItalic().run()} 
-          className={cn(
-            "text-white hover:bg-white/10",
-            editor.isActive("italic") && "bg-white/10"
-          )}
-        >
-          <Italic className="h-4 w-4" />
-        </Button>
-        <Button 
-          variant="ghost" 
-          size="sm" 
-          onClick={() => editor.chain().focus().toggleBulletList().run()} 
-          className={cn(
-            "text-white hover:bg-white/10",
-            editor.isActive("bulletList") && "bg-white/10"
-          )}
-        >
-          <List className="h-4 w-4" />
-        </Button>
-        <Button 
-          variant="ghost" 
-          size="sm" 
-          onClick={() => editor.chain().focus().toggleOrderedList().run()} 
-          className={cn(
-            "text-white hover:bg-white/10",
-            editor.isActive("orderedList") && "bg-white/10"
-          )}
-        >
-          <ListOrdered className="h-4 w-4" />
-        </Button>
-        <Button asChild variant="ghost" size="sm" className="text-white hover:bg-white/10">
-          <label htmlFor="imageUpload" className="cursor-pointer flex items-center justify-center">
-            <ImageIcon className="h-4 w-4" />
-          </label>
-        </Button>
-        <input id="imageUpload" type="file" accept="image/*" className="hidden" onChange={addImage} />
+      <div className="fixed top-20 left-0 right-0 z-50 px-4">
+        <div className="max-w-4xl mx-auto">
+          <div className="border border-white/20 rounded-lg p-2 flex gap-2 bg-white/5 backdrop-blur-md shadow-lg">
+            <Button 
+              variant="ghost" 
+              size="sm" 
+              onClick={() => editor.chain().focus().toggleBold().run()} 
+              className={cn(
+                "text-white hover:bg-white/10",
+                editor.isActive("bold") && "bg-white/10"
+              )}
+            >
+              <Bold className="h-4 w-4" />
+            </Button>
+            <Button 
+              variant="ghost" 
+              size="sm" 
+              onClick={() => editor.chain().focus().toggleItalic().run()} 
+              className={cn(
+                "text-white hover:bg-white/10",
+                editor.isActive("italic") && "bg-white/10"
+              )}
+            >
+              <Italic className="h-4 w-4" />
+            </Button>
+            <Button 
+              variant="ghost" 
+              size="sm" 
+              onClick={() => editor.chain().focus().toggleBulletList().run()} 
+              className={cn(
+                "text-white hover:bg-white/10",
+                editor.isActive("bulletList") && "bg-white/10"
+              )}
+            >
+              <List className="h-4 w-4" />
+            </Button>
+            <Button 
+              variant="ghost" 
+              size="sm" 
+              onClick={() => editor.chain().focus().toggleOrderedList().run()} 
+              className={cn(
+                "text-white hover:bg-white/10",
+                editor.isActive("orderedList") && "bg-white/10"
+              )}
+            >
+              <ListOrdered className="h-4 w-4" />
+            </Button>
+            <Button asChild variant="ghost" size="sm" className="text-white hover:bg-white/10">
+              <label htmlFor="imageUpload" className="cursor-pointer flex items-center justify-center">
+                <ImageIcon className="h-4 w-4" />
+              </label>
+            </Button>
+            <input id="imageUpload" type="file" accept="image/*" className="hidden" onChange={addImage} />
+          </div>
+        </div>
       </div>
     );
   };

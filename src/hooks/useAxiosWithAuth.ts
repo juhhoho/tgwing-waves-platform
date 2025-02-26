@@ -38,9 +38,10 @@ export const useAxiosWithAuth = () => {
               `${baseURL}/api/auth/reissue`,
               {},
               {
-                withCredentials: true, // 쿠키 전송을 위해 필요
+                withCredentials: true,
                 headers: {
-                  'Refresh': localStorage.getItem('refreshToken')
+                  'Authorization': `Bearer ${localStorage.getItem('accessToken')}`,
+                  'Refresh-Token': localStorage.getItem('refreshToken')
                 }
               }
             );
