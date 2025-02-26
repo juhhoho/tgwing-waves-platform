@@ -71,7 +71,6 @@ const mockStudyDetail: StudyDetail = {
   ]
 };
 
-
 const StudyDetail = () => {
   const { id } = useParams<{ id: string }>();
   const { data: study, isLoading } = useQuery({
