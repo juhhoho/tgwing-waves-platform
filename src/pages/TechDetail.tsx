@@ -60,7 +60,6 @@ const TechDetail = () => {
       const response = await axiosWithAuth.get(`/api/feeds/${feedId}`,{
         headers: {
           "Content-Type": "application/json",
-          access: localStorage.getItem("accessToken") ?? "",
         },
       });
       return response.data.response;
@@ -73,7 +72,6 @@ const TechDetail = () => {
       const response = await axiosWithAuth.get(`/api/feeds/${feedId}/comments`,{
         headers: {
           "Content-Type": "application/json",
-          access: localStorage.getItem("accessToken") ?? "",
         },
       });
       return response.data.response.comments;
@@ -85,7 +83,6 @@ const TechDetail = () => {
       const response = await axiosWithAuth.post(`/api/feeds/${feedId}/comments`, { content },{
         headers: {
           "Content-Type": "application/json",
-          access: localStorage.getItem("accessToken") ?? "",
         },
       });
       return response.data;
@@ -109,7 +106,11 @@ const TechDetail = () => {
 
   const updateCommentMutation = useMutation({
     mutationFn: async ({ commentId, content }: { commentId: string; content: string }) => {
-      const response = await axiosWithAuth.patch(`/api/feeds/${feedId}/comments/${commentId}`, { content });
+      const response = await axiosWithAuth.patch(`/api/feeds/${feedId}/comments/${commentId}`, { content },{
+        headers: {
+          "Content-Type": "application/json",
+        },
+      });
       return response.data;
     },
     onSuccess: () => {
@@ -127,7 +128,6 @@ const TechDetail = () => {
       const response = await axiosWithAuth.delete(`/api/feeds/${feedId}/comments/${commentId}`,{
         headers: {
           "Content-Type": "application/json",
-          access: localStorage.getItem("accessToken") ?? "",
         },
       });
       return response.data;
@@ -148,7 +148,6 @@ const TechDetail = () => {
         { content },{
           headers: {
             "Content-Type": "application/json",
-            access: localStorage.getItem("accessToken") ?? "",
           },
         }
       );
@@ -172,7 +171,6 @@ const TechDetail = () => {
         { content },{
           headers: {
             "Content-Type": "application/json",
-            access: localStorage.getItem("accessToken") ?? "",
           },
         }
       );
@@ -194,7 +192,6 @@ const TechDetail = () => {
         `/api/feeds/${feedId}/comments/${commentId}/replies/${replyId}`,{
           headers: {
             "Content-Type": "application/json",
-            access: localStorage.getItem("accessToken") ?? "",
           },
         }
       );

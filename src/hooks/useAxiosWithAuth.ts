@@ -1,24 +1,55 @@
 
-import axios, { AxiosError, InternalAxiosRequestConfig } from 'axios';
-import { useEffect } from 'react';
+import axios, { AxiosInstance, AxiosError, InternalAxiosRequestConfig } from "axios";
+import { useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
+
 
 export const useAxiosWithAuth = () => {
   const navigate = useNavigate();
-  const baseURL = import.meta.env.VITE_API_URL || 'http://localhost:8080';
+  const baseURL = import.meta.env.VITE_API_URL || "http://localhost:8080";
+  const interceptorRegistered = useRef(false); // ✅ 중복 방지용 ref
 
-  const axiosInstance = axios.create({
-    baseURL,
-    timeout: 5000,
-  });
+
+  // ✅ useRef로 axios 인스턴스 생성 & 유지
+  const axiosInstanceRef = useRef<AxiosInstance>(
+    axios.create({
+      baseURL,
+      timeout: 5000,
+    })
+  );
+
+  function getCookie(name: string): string | null {
+    const cookies = document.cookie.split("; ");
+    for (const cookie of cookies) {
+      const [cookieName, cookieValue] = cookie.split("=");
+      if (cookieName === name) {
+        return cookieValue;
+      }
+    }
+    return null;
+  }
+
+  const axiosInstance = axiosInstanceRef.current; // 🔥 useRef로 감싸진 axiosInstance 가져오기
 
   useEffect(() => {
+    console.log("🟢 useEffect 실행됨");
+
+    if (interceptorRegistered.current) return; // ✅ 이미 등록된 경우 다시 실행 안 함
+    interceptorRegistered.current = true;
+
+    // request 인터셉터
     const requestInterceptor = axiosInstance.interceptors.request.use(
       (config: InternalAxiosRequestConfig) => {
-        const accessToken = localStorage.getItem('accessToken');
+
+        const accessToken = localStorage.getItem("accessToken");
+        console.log("🟢refresh: ", getCookie("refresh"));
+
         if (accessToken) {
-          config.headers.Authorization = `Bearer ${accessToken}`;
+          config.headers.access = accessToken;
+          config.headers.ccc = "asdasd";
+          console.log("🟢access: ", accessToken);
         }
+
         return config;
       },
       (error) => Promise.reject(error)
@@ -28,53 +59,51 @@ export const useAxiosWithAuth = () => {
       (response) => response,
       async (error: AxiosError) => {
         const originalRequest = error.config;
-        
+
         if (error.response?.status === 401 && originalRequest && !originalRequest.headers._retry) {
           originalRequest.headers._retry = true;
-          
+
           try {
-            // 토큰 재발급 시도
-            const response = await axios.post(
-              `${baseURL}/api/auth/reissue`,
+            console.log("🔄 토큰 재발급 시도...");
+            const response = await axios.post(`${baseURL}/api/reissue`,
               {},
               {
                 withCredentials: true,
                 headers: {
-                  'Authorization': `Bearer ${localStorage.getItem('accessToken')}`,
-                  'Refresh-Token': localStorage.getItem('refreshToken')
-                }
+                  access: localStorage.getItem("accessToken"),
+                },
               }
             );
-            
-            const newAccessToken = response.data.accessToken;
-            const newRefreshToken = response.data.refreshToken;
-            
-            localStorage.setItem('accessToken', newAccessToken);
-            localStorage.setItem('refreshToken', newRefreshToken);
-            
-            // 원래 요청 재시도
+
+            console.log("✅ 토큰 재발급 성공");
+            const newAccessToken = response.headers["access"];
+            console.log("재발급된 access: " + newAccessToken);
+            console.log("재발급된 refresh: " + getCookie("refresh"));
+
+            localStorage.setItem("accessToken", newAccessToken);
+
             if (originalRequest.headers) {
-              originalRequest.headers.Authorization = `Bearer ${newAccessToken}`;
+              originalRequest.headers.access = newAccessToken;
             }
             return axios(originalRequest);
           } catch (refreshError) {
-            // 재발급 실패시 로그인 페이지로 리다이렉트
-            localStorage.removeItem('accessToken');
-            localStorage.removeItem('refreshToken');
-            navigate('/login');
+            console.log("❌ 토큰 재발급 실패");
+            localStorage.removeItem("accessToken");
+            navigate("/login");
             return Promise.reject(refreshError);
           }
         }
-        
+
         return Promise.reject(error);
       }
     );
 
     return () => {
+      console.log("🟡 useEffect cleanup 실행됨");
       axiosInstance.interceptors.request.eject(requestInterceptor);
       axiosInstance.interceptors.response.eject(responseInterceptor);
     };
-  }, [navigate, baseURL]);
+  }, [navigate, baseURL, axiosInstance]);
 
   return axiosInstance;
 };

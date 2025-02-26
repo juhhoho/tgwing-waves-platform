@@ -105,6 +105,27 @@ const Register = () => {
       });
     }
   };
+  const renderStepIndicator = () => {
+    return (
+      <div className="flex justify-center gap-2 mb-6">
+        {[1, 2, 3, 4].map((index) => (
+          <div
+            key={index}
+            className={`flex items-center gap-2 ${
+              index === step ? "text-white" : "text-gray-400"
+            }`}
+          >
+            {index === step ? (
+              <CheckCircle2 className="w-6 h-6" />
+            ) : (
+              <Circle className="w-6 h-6" />
+            )}
+            <span className="text-sm">Step {index}</span>
+          </div>
+        ))}
+      </div>
+    );
+  };
 
   const renderStep = () => {
     switch (step) {
@@ -117,15 +138,27 @@ const Register = () => {
               placeholder="이메일"
               value={formData.email}
               onChange={(e) => setFormData({ ...formData, email: e.target.value })}
+              className="bg-white/10 border-white/20 text-white placeholder:text-gray-400"
             />
-            <Button onClick={handleEmailVerification}>인증 코드 발송</Button>
+            <Button 
+              onClick={handleEmailVerification}
+              className="w-full bg-tgwing-600 hover:bg-tgwing-700"
+            >
+              인증 코드 발송
+            </Button>
             <Input
               type="text"
               placeholder="인증 코드"
               value={verificationCode}
               onChange={(e) => setVerificationCode(e.target.value)}
+              className="bg-white/10 border-white/20 text-white placeholder:text-gray-400"
             />
-            <Button onClick={handleVerifyCode}>인증 확인</Button>
+            <Button 
+              onClick={handleVerifyCode}
+              className="w-full bg-tgwing-600 hover:bg-tgwing-700"
+            >
+              인증 확인
+            </Button>
           </div>
         );
       case 2:
@@ -137,10 +170,21 @@ const Register = () => {
               placeholder="아이디"
               value={formData.username}
               onChange={(e) => setFormData({ ...formData, username: e.target.value })}
+              className="bg-white/10 border-white/20 text-white placeholder:text-gray-400"
             />
-            <Button onClick={handleUsernameCheck}>중복 확인</Button>
+            <Button 
+              onClick={handleUsernameCheck}
+              className="w-full bg-tgwing-600 hover:bg-tgwing-700"
+            >
+              중복 확인
+            </Button>
             {isUsernameAvailable && (
-              <Button onClick={() => setStep(3)}>다음</Button>
+              <Button 
+                onClick={() => setStep(3)}
+                className="w-full bg-tgwing-600 hover:bg-tgwing-700"
+              >
+                다음
+              </Button>
             )}
           </div>
         );
@@ -153,40 +197,54 @@ const Register = () => {
               placeholder="비밀번호"
               value={formData.password}
               onChange={(e) => setFormData({ ...formData, password: e.target.value })}
+              className="bg-white/10 border-white/20 text-white placeholder:text-gray-400"
             />
             <Input
               type="text"
               placeholder="이름"
               value={formData.name}
               onChange={(e) => setFormData({ ...formData, name: e.target.value })}
+              className="bg-white/10 border-white/20 text-white placeholder:text-gray-400"
             />
             <Input
               type="text"
               placeholder="학번"
               value={formData.studentId}
               onChange={(e) => setFormData({ ...formData, studentId: e.target.value })}
+              className="bg-white/10 border-white/20 text-white placeholder:text-gray-400"
             />
             <Input
               type="tel"
               placeholder="전화번호"
               value={formData.phone}
               onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
+              className="bg-white/10 border-white/20 text-white placeholder:text-gray-400"
             />
-            <Button onClick={() => setStep(4)}>다음</Button>
+            <Button 
+              onClick={() => setStep(4)}
+              className="w-full bg-tgwing-600 hover:bg-tgwing-700"
+            >
+              다음
+            </Button>
           </div>
         );
       case 4:
         return (
           <div className="space-y-4">
             <h2 className="text-xl font-semibold mb-4">회원가입 완료</h2>
-            <div className="space-y-2">
+            <div className="space-y-2 text-gray-300">
               <p>이메일: {formData.email}</p>
               <p>아이디: {formData.username}</p>
               <p>이름: {formData.name}</p>
               <p>학번: {formData.studentId}</p>
               <p>전화번호: {formData.phone}</p>
             </div>
-            <Button onClick={handleSubmit}>회원가입</Button>
+            <Button 
+              onClick={handleSubmit}
+              className="w-full bg-tgwing-600 hover:bg-tgwing-700"
+            >
+              회원가입
+            </Button>
           </div>
         );
       default:
@@ -195,28 +253,35 @@ const Register = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-[#87CEEB] to-[#1E90FF]">
+    <div className="min-h-screen bg-[#111827] text-white overflow-hidden">
       <Navbar />
-      <div className="container mx-auto px-4 pt-24 pb-16">
-        <div className="max-w-md mx-auto bg-white rounded-lg p-6 shadow-lg">
-          <div className="flex justify-between mb-8">
-            {[1, 2, 3, 4].map((num) => (
-              <div
-                key={num}
-                className={`flex flex-col items-center ${
-                  num === step ? "text-tgwing-600" : "text-gray-400"
-                }`}
-              >
-                {num < step ? (
-                  <CheckCircle2 className="w-6 h-6" />
-                ) : (
-                  <Circle className="w-6 h-6" />
-                )}
-                <span className="text-sm mt-1">단계 {num}</span>
-              </div>
-            ))}
+      <div className="relative">
+        <div className="container mx-auto px-4 pt-32 pb-16 relative z-10">
+          <div className="max-w-md mx-auto">
+            <div className="bg-white/10 backdrop-blur-md rounded-lg p-8 shadow-lg">
+              <h2 className="text-2xl font-bold mb-6 text-center">회원가입</h2>
+              {renderStepIndicator()}
+              {renderStep()}
+            </div>
           </div>
-          {renderStep()}
+        </div>
+
+        <div className="absolute bottom-0 left-0 right-0 h-64 z-0">
+          <svg className="w-full h-full" viewBox="0 0 1440 320" xmlns="http://www.w3.org/2000/svg">
+            <path 
+              fill="#0284c7" 
+              fillOpacity="0.1" 
+              d="M0,96L48,128C96,160,192,224,288,245.3C384,267,480,245,576,234.7C672,224,768,224,864,213.3C960,203,1056,181,1152,181.3C1248,181,1344,203,1392,213.3L1440,224L1440,320L1392,320C1344,320,1248,320,1152,320C1056,320,960,320,864,320C768,320,672,320,576,320C480,320,384,320,288,320C192,320,96,320,48,320L0,320Z"
+              className="animate-wave"
+            />
+            <path 
+              fill="#0284c7" 
+              fillOpacity="0.2" 
+              d="M0,160L48,170.7C96,181,192,203,288,213.3C384,224,480,224,576,213.3C672,203,768,181,864,181.3C960,181,1056,203,1152,208C1248,213,1344,203,1392,197.3L1440,192L1440,320L1392,320C1344,320,1248,320,1152,320C1056,320,960,320,864,320C768,320,672,320,576,320C480,320,384,320,288,320C192,320,96,320,48,320L0,320Z"
+              className="animate-wave"
+              style={{ animationDelay: "0.2s" }}
+            />
+          </svg>
         </div>
       </div>
     </div>

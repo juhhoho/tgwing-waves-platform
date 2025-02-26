@@ -1,11 +1,16 @@
 
 import { Button } from "@/components/ui/button";
 import { Phone, Mail, Instagram, Facebook, Github } from "lucide-react";
+import { useNavigate } from "react-router-dom";
 
 const Contact = () => {
+  const navigate = useNavigate();
   return (
     <section className="text-center">
-      <Button className="bg-tgwing-600 hover:bg-tgwing-700 text-white text-lg px-8 py-6 rounded-full mb-8">
+      <Button 
+      className="bg-tgwing-600 hover:bg-tgwing-700 text-white text-lg px-8 py-6 rounded-full mb-8"
+      onClick={() => navigate("/register")}
+      >
         지금 가입하기
       </Button>
       <div className="flex justify-center gap-4 text-white">

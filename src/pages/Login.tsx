@@ -6,7 +6,6 @@ import { Input } from "@/components/ui/input";
 import { useToast } from "@/components/ui/use-toast";
 import Navbar from "@/components/Navbar";
 import axios from "axios";
-import { access } from "fs";
 
 const Login = () => {
   const navigate = useNavigate();
@@ -25,7 +24,6 @@ const Login = () => {
       });
 
       const accessToken = response.headers["access"];
-      console.log(accessToken);
     
       if (!accessToken) {
         throw new Error("Access Token이 응답 헤더에 없음");
