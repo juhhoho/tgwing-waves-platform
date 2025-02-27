@@ -48,8 +48,8 @@ const TechWrite = () => {
       
       await axiosWithAuth.post("/api/feed", {
         title,
-        content: editor.getHTML(),
-        plainText: editor.getText(),
+        content: editor.getHTML().replace(/<p><\/p>/g, "<p>&nbsp;</p>"),
+        plainText: editor.getText().replace(/\n/g, "").replace(/\s+/g, ""),
         thumbnail: finalThumbnail
       },
       { 

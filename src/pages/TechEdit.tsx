@@ -82,8 +82,8 @@ const TechEdit = () => {
     try {
       await axiosWithAuth.patch(`/api/feeds/${id}`, {
         title,
-        content: editor.getHTML(),
-        plainText: editor.getText(),
+        content: editor.getHTML().replace(/<p><\/p>/g, "<p>&nbsp;</p>"),
+        plainText: editor.getText().replace(/\n/g, "").replace(/\s+/g, ""),
         thumbnail
       },{
         headers: {

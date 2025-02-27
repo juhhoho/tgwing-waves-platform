@@ -62,6 +62,7 @@ const TechDetail = () => {
           "Content-Type": "application/json",
         },
       });
+      response.data.response.content = response.data.response.content.replace(/<p><\/p>/g, "<p>&nbsp;</p>")
       return response.data.response;
     }
   });
