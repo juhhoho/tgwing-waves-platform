@@ -1,5 +1,4 @@
-
-import { useState, useCallback } from "react";
+import { useState, useCallback, useRef } from "react";
 import { useNavigate } from "react-router-dom";
 import { useEditor, EditorContent } from "@tiptap/react";
 import StarterKit from "@tiptap/starter-kit";
@@ -76,6 +75,8 @@ const TechWrite = () => {
   };
 
   const MenuBar = ({ editor }: { editor: any }) => {
+    const fileInputRef = useRef<HTMLInputElement>(null);
+
     const addImage = useCallback(async (event: React.ChangeEvent<HTMLInputElement>) => {
       const file = event.target.files?.[0];
       const imageName = `${uuidv4()}-${file.name}`;
@@ -115,58 +116,78 @@ const TechWrite = () => {
     if (!editor) return null;
 
     return (
-      <div className="border border-white/20 rounded-t-lg p-2 flex gap-2 bg-white/5">
-        <Button 
-          variant="ghost" 
-          size="sm" 
-          onClick={() => editor.chain().focus().toggleBold().run()} 
-          className={cn(
-            "text-white hover:bg-white/10",
-            editor.isActive("bold") && "bg-white/10"
-          )}
-        >
-          <Bold className="h-4 w-4" />
-        </Button>
-        <Button 
-          variant="ghost" 
-          size="sm" 
-          onClick={() => editor.chain().focus().toggleItalic().run()} 
-          className={cn(
-            "text-white hover:bg-white/10",
-            editor.isActive("italic") && "bg-white/10"
-          )}
-        >
-          <Italic className="h-4 w-4" />
-        </Button>
-        <Button 
-          variant="ghost" 
-          size="sm" 
-          onClick={() => editor.chain().focus().toggleBulletList().run()} 
-          className={cn(
-            "text-white hover:bg-white/10",
-            editor.isActive("bulletList") && "bg-white/10"
-          )}
-        >
-          <List className="h-4 w-4" />
-        </Button>
-        <Button 
-          variant="ghost" 
-          size="sm" 
-          onClick={() => editor.chain().focus().toggleOrderedList().run()} 
-          className={cn(
-            "text-white hover:bg-white/10",
-            editor.isActive("orderedList") && "bg-white/10"
-          )}
-        >
-          <ListOrdered className="h-4 w-4" />
-        </Button>
-        <Button asChild variant="ghost" size="sm" className="text-white hover:bg-white/10">
-          <label htmlFor="imageUpload" className="cursor-pointer flex items-center justify-center">
-            <ImageIcon className="h-4 w-4" />
-          </label>
-        </Button>
-        <input id="imageUpload" type="file" accept="image/*" className="hidden" onChange={addImage} />
-      </div>
+      <>
+        <div className="fixed top-20 left-0 right-0 z-50 px-4">
+          <div className="max-w-4xl mx-auto">
+            <div className="border border-white/20 rounded-lg p-2 flex gap-2 bg-white/5 backdrop-blur-md shadow-lg">
+              <Button 
+                variant="ghost" 
+                size="sm" 
+                onClick={() => editor.chain().focus().toggleBold().run()} 
+                className={cn(
+                  "text-white hover:bg-white/10",
+                  editor.isActive("bold") && "bg-white/10"
+                )}
+              >
+                <Bold className="h-4 w-4" />
+              </Button>
+              <Button 
+                variant="ghost" 
+                size="sm" 
+                onClick={() => editor.chain().focus().toggleItalic().run()} 
+                className={cn(
+                  "text-white hover:bg-white/10",
+                  editor.isActive("italic") && "bg-white/10"
+                )}
+              >
+                <Italic className="h-4 w-4" />
+              </Button>
+              <Button 
+                variant="ghost" 
+                size="sm" 
+                onClick={() => editor.chain().focus().toggleBulletList().run()} 
+                className={cn(
+                  "text-white hover:bg-white/10",
+                  editor.isActive("bulletList") && "bg-white/10"
+                )}
+              >
+                <List className="h-4 w-4" />
+              </Button>
+              <Button 
+                variant="ghost" 
+                size="sm" 
+                onClick={() => editor.chain().focus().toggleOrderedList().run()} 
+                className={cn(
+                  "text-white hover:bg-white/10",
+                  editor.isActive("orderedList") && "bg-white/10"
+                )}
+              >
+                <ListOrdered className="h-4 w-4" />
+              </Button>
+            </div>
+          </div>
+        </div>
+        
+        {/* Floating Image Upload Button */}
+        <div className="fixed right-8 top-1/2 transform -translate-y-1/2 z-50">
+          <div className="bg-white/5 backdrop-blur-md border border-white/20 rounded-lg p-2 shadow-lg">
+            <Button asChild variant="ghost" size="icon" className="text-white hover:bg-white/10">
+              <label htmlFor="imageUpload" className="cursor-pointer">
+                <ImageIcon className="h-6 w-6" />
+                <span className="sr-only">이미지 업로드</span>
+              </label>
+            </Button>
+          </div>
+          <input
+            ref={fileInputRef}
+            id="imageUpload"
+            type="file"
+            accept="image/*"
+            onChange={addImage}
+            className="hidden"
+          />
+        </div>
+      </>
     );
   };
 
