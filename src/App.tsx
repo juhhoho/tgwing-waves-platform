@@ -16,7 +16,7 @@ import StudyDetail from "./pages/StudyDetail";
 import About from "./pages/About";
 import Login from "./pages/Login";
 import Register from "./pages/Register";
-import Info from "./pages/Info"; // Import the new Info page
+import Info from "./pages/Info";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -44,7 +44,7 @@ const App = () => (
           <Route path="/login" element={<Login />} />
           <Route path="/register" element={<Register />} />
           
-          {/* New Protected Info Route */}
+          {/* Protected Info Route */}
           <Route
             path="/info"
             element={

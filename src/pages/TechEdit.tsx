@@ -1,4 +1,3 @@
-
 import { useState, useCallback } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
@@ -149,14 +148,14 @@ const TechEdit = () => {
     if (!editor) return null;
 
     return (
-      <div className="border border-white/20 rounded-t-lg p-2 flex gap-2 bg-white/5">
+      <div className="border border-gray-200 rounded-t-lg p-2 flex gap-2 bg-white">
         <Button 
           variant="ghost" 
           size="sm" 
           onClick={() => editor.chain().focus().toggleBold().run()} 
           className={cn(
-            "text-white hover:bg-white/10",
-            editor.isActive("bold") && "bg-white/10"
+            "text-gray-700 hover:bg-gray-100",
+            editor.isActive("bold") && "bg-gray-100"
           )}
         >
           <Bold className="h-4 w-4" />
@@ -166,8 +165,8 @@ const TechEdit = () => {
           size="sm" 
           onClick={() => editor.chain().focus().toggleItalic().run()} 
           className={cn(
-            "text-white hover:bg-white/10",
-            editor.isActive("italic") && "bg-white/10"
+            "text-gray-700 hover:bg-gray-100",
+            editor.isActive("italic") && "bg-gray-100"
           )}
         >
           <Italic className="h-4 w-4" />
@@ -177,8 +176,8 @@ const TechEdit = () => {
           size="sm" 
           onClick={() => editor.chain().focus().toggleBulletList().run()} 
           className={cn(
-            "text-white hover:bg-white/10",
-            editor.isActive("bulletList") && "bg-white/10"
+            "text-gray-700 hover:bg-gray-100",
+            editor.isActive("bulletList") && "bg-gray-100"
           )}
         >
           <List className="h-4 w-4" />
@@ -188,13 +187,13 @@ const TechEdit = () => {
           size="sm" 
           onClick={() => editor.chain().focus().toggleOrderedList().run()} 
           className={cn(
-            "text-white hover:bg-white/10",
-            editor.isActive("orderedList") && "bg-white/10"
+            "text-gray-700 hover:bg-gray-100",
+            editor.isActive("orderedList") && "bg-gray-100"
           )}
         >
           <ListOrdered className="h-4 w-4" />
         </Button>
-        <Button asChild variant="ghost" size="sm" className="text-white hover:bg-white/10">
+        <Button asChild variant="ghost" size="sm" className="text-gray-700 hover:bg-gray-100">
           <label htmlFor="imageUpload" className="cursor-pointer flex items-center justify-center">
             <ImageIcon className="h-4 w-4" />
           </label>
@@ -242,95 +241,94 @@ const TechEdit = () => {
   }, [setThumbnail]); 
 
   return (
-    <div className="min-h-screen bg-[#111827] text-white overflow-hidden">
+    <div className="min-h-screen bg-white text-gray-900">
       <Navbar />
-      <div className="relative">
-        <div className="container mx-auto px-4 pt-32 pb-16 relative z-10">
-          <div className="max-w-4xl mx-auto">
-            <form onSubmit={handleSubmit} className="space-y-6">
-              <div className="bg-white/10 backdrop-blur-md rounded-lg shadow-lg">
-                <Input 
-                  type="text" 
-                  placeholder="제목을 입력하세요" 
-                  value={title} 
-                  onChange={(e) => setTitle(e.target.value)} 
-                  className="text-2xl font-semibold border-0 rounded-t-lg rounded-b-none focus-visible:ring-0 bg-white/5 border-white/10 text-white placeholder:text-gray-400" 
+      <div className="container mx-auto px-4 pt-32 pb-16">
+        <div className="max-w-4xl mx-auto">
+          <form onSubmit={handleSubmit} className="space-y-6">
+            <div className="bg-white rounded-lg shadow-md">
+              <Input 
+                type="text" 
+                placeholder="제목을 입력하세요" 
+                value={title} 
+                onChange={(e) => setTitle(e.target.value)} 
+                className="text-2xl font-semibold border-0 rounded-t-lg rounded-b-none focus-visible:ring-0 border-gray-200 text-gray-900 placeholder:text-gray-400" 
+              />
+              
+              <div className="flex items-center space-x-4 px-4 py-2 text-gray-500 bg-white border-t border-gray-200">
+                <span>{post?.author}</span>
+                <span>•</span>
+                <time>{post?.uploadAt && new Date(post.uploadAt).toLocaleDateString()}</time>
+              </div>
+
+              <div className="border-t border-gray-200">
+                <MenuBar editor={editor} />
+                <div className="bg-white">
+                  <EditorContent editor={editor} className="min-h-[500px] text-gray-900 prose max-w-none" />
+                </div>
+              </div>
+
+              <div className="border-t border-gray-200 p-4 bg-white">
+                <label className="block text-sm font-medium text-gray-700 mb-2">썸네일</label>
+                <div className="flex gap-4 items-center">
+                <input
+                  type="file"
+                  accept="image/*"
+                  onChange={handleThumbnailChange}
+                  className="block w-full text-sm text-gray-500
+                    file:mr-4 file:py-2 file:px-4
+                    file:rounded-md file:border-0
+                    file:text-sm file:font-semibold
+                    file:bg-blue-600 file:text-white
+                    hover:file:bg-blue-700"
                 />
-                
-                <div className="flex items-center space-x-4 px-4 py-2 text-gray-300 bg-white/5 border-t border-white/10">
-                  <span>{post?.author}</span>
-                  <span>•</span>
-                  <time>{new Date(post?.uploadAt).toLocaleDateString()}</time>
-                </div>
-
-                <div className="border-t border-white/10">
-                  <MenuBar editor={editor} />
-                  <div className="bg-white/5">
-                    <EditorContent editor={editor} className="min-h-[500px] text-white prose-invert max-w-none" />
-                  </div>
-                </div>
-
-                <div className="border-t border-white/10 p-4 bg-white/5">
-                  <label className="block text-sm font-medium text-gray-200 mb-2">썸네일</label>
-                  <div className="flex gap-4 items-center">
-                  <input
-                    type="file"
-                    accept="image/*"
-                    onChange={handleThumbnailChange}
-                    className="block w-full text-sm text-gray-300
-                      file:mr-4 file:py-2 file:px-4
-                      file:rounded-md file:border-0
-                      file:text-sm file:font-semibold
-                      file:bg-white/10 file:text-white
-                      hover:file:bg-white/20"
-/>
-                    {thumbnail && (
-                      <img
-                        src={thumbnail}
-                        alt="썸네일 미리보기"
-                        className="h-20 w-20 object-cover rounded"
-                      />
-                    )}
-                  </div>
+                  {thumbnail && (
+                    <img
+                      src={thumbnail}
+                      alt="썸네일 미리보기"
+                      className="h-20 w-20 object-cover rounded"
+                    />
+                  )}
                 </div>
               </div>
-              <div className="flex justify-end space-x-4">
-                <Button 
-                  type="button" 
-                  variant="outline" 
-                  onClick={() => navigate(`/tech/${id}`)} 
-                  className="text-white border-white/20 hover:bg-white/10 font-semibold"
-                >
-                  취소
-                </Button>
-                <Button 
-                  type="submit" 
-                  disabled={isSubmitting} 
-                  className="bg-tgwing-600 hover:bg-tgwing-700 font-semibold"
-                >
-                  {isSubmitting ? "저장 중..." : "저장"}
-                </Button>
-              </div>
-            </form>
-          </div>
+            </div>
+            <div className="flex justify-end space-x-4">
+              <Button 
+                type="button" 
+                variant="outline" 
+                onClick={() => navigate(`/tech/${id}`)} 
+                className="border-gray-300 text-gray-700 hover:bg-gray-100 font-semibold"
+              >
+                취소
+              </Button>
+              <Button 
+                type="submit" 
+                disabled={isSubmitting} 
+                className="bg-blue-600 hover:bg-blue-700 font-semibold"
+              >
+                {isSubmitting ? "저장 중..." : "저장"}
+              </Button>
+            </div>
+          </form>
         </div>
-        
-        <div className="absolute bottom-0 left-0 right-0 h-64 z-0">
-          <svg className="w-full h-full" viewBox="0 0 1440 320" xmlns="http://www.w3.org/2000/svg">
-            <path 
-              fill="#0284c7" 
-              fillOpacity="0.1" 
-              d="M0,96L48,128C96,160,192,224,288,245.3C384,267,480,245,576,234.7C672,224,768,224,864,213.3C960,203,1056,181,1152,181.3C1248,181,1344,203,1392,213.3L1440,224L1440,320L1392,320C1344,320,1248,320,1152,320C1056,320,960,320,864,320C768,320,672,320,576,320C480,320,384,320,288,320C192,320,96,320,48,320L0,320Z"
-              className="animate-wave"
-            />
-            <path 
-              fill="#0284c7" 
-              fillOpacity="0.2" 
-              d="M0,160L48,170.7C96,181,192,203,288,213.3C384,224,480,224,576,213.3C672,203,768,181,864,181.3C960,181,1056,203,1152,208C1248,213,1344,203,1392,197.3L1440,192L1440,320L1392,320C1344,320,1248,320,1152,320C1056,320,960,320,864,320C768,320,672,320,576,320C480,320,384,320,288,320C192,320,96,320,48,320L0,320Z"
-              className="animate-wave"
-              style={{ animationDelay: "0.2s" }}
-            />
-          </svg>
+      </div>
+      
+      {/* Floating Image Upload Button */}
+      <div className="fixed right-8 top-1/2 transform -translate-y-1/2 z-50">
+        <div className="bg-white border border-gray-200 rounded-lg p-2 shadow-md">
+          <Button asChild variant="ghost" size="icon" className="text-gray-700 hover:bg-gray-100">
+            <label htmlFor="floatingImageUpload" className="cursor-pointer">
+              <ImageIcon className="h-6 w-6" />
+              <span className="sr-only">이미지 업로드</span>
+            </label>
+          </Button>
+          <input
+            id="floatingImageUpload"
+            type="file"
+            accept="image/*"
+            onChange={addImage}
+            className="hidden"
+          />
         </div>
       </div>
     </div>
@@ -338,4 +336,3 @@ const TechEdit = () => {
 };
 
 export default TechEdit;
-

@@ -10,6 +10,15 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { useAxiosWithAuth } from "@/hooks/useAxiosWithAuth";
 import Navbar from "@/components/Navbar";
 import { UserCircle, Mail, Phone, BookOpen, Calendar, Edit2 } from "lucide-react";
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+
+interface Feed {
+  id: string;
+  title: string;
+  uploadAt: string;
+  author: string;
+  thumbnail: string | null;
+}
 
 interface UserInfo {
   username: string;
@@ -18,82 +27,60 @@ interface UserInfo {
   studentId: string;
   phone: string;
   bio: string;
-  joinDate: string;
+  feeds: Feed[];
+  joinDate?: string;
 }
 
 const Info = () => {
   const navigate = useNavigate();
   const { toast } = useToast();
   const axiosWithAuth = useAxiosWithAuth();
-  const [userInfo, setUserInfo] = useState<UserInfo>({
-    username: "",
-    name: "",
-    email: "",
-    studentId: "",
-    phone: "",
-    bio: "",
-    joinDate: "",
-  });
+  const queryClient = useQueryClient();
   const [isEditingBio, setIsEditingBio] = useState(false);
   const [newBio, setNewBio] = useState("");
-  const [posts, setPosts] = useState([]);
-  const [activities, setActivities] = useState([]);
-  const [isLoading, setIsLoading] = useState(true);
 
-  useEffect(() => {
-    const fetchUserInfo = async () => {
+  // Fetch user info
+  const { data: userInfo, isLoading, isError } = useQuery({
+    queryKey: ["userInfo"],
+    queryFn: async () => {
       try {
-        // Mock data - replace with actual API call when available
-        const mockUserInfo = {
-          username: localStorage.getItem('username') || "사용자",
-          name: "홍길동",
-          email: "user@example.com",
-          studentId: "20200001",
-          phone: "010-1234-5678",
-          bio: "안녕하세요! TGWing에서 활동하는 개발자입니다. 웹 개발과 인공지능에 관심이 많습니다.",
-          joinDate: "2023-03-15",
-        };
-        
-        setUserInfo(mockUserInfo);
-        setNewBio(mockUserInfo.bio);
-        setIsLoading(false);
-        
-        // In a real application, you would fetch the user data from your API:
-        // const response = await axiosWithAuth.get("/api/user/info");
-        // setUserInfo(response.data);
-        // setNewBio(response.data.bio);
+        const response = await axiosWithAuth.get("/api/info");
+        const data = response.data.response;
+        setNewBio(data.bio);
+        return data;
       } catch (error) {
-        toast({
-          title: "정보 로드 실패",
-          description: "사용자 정보를 불러오는데 실패했습니다.",
-          variant: "destructive",
-        });
-        navigate("/login");
+        console.error("Error fetching user info:", error);
+        throw error;
       }
-    };
+    }
+  });
 
-    fetchUserInfo();
-  }, []);
-
-  const handleUpdateBio = async () => {
-    try {
-      // Replace with actual API call when available
-      // await axiosWithAuth.put("/api/user/bio", { bio: newBio });
-      
-      setUserInfo({ ...userInfo, bio: newBio });
+  // Update bio mutation
+  const updateBioMutation = useMutation({
+    mutationFn: async (bio: string) => {
+      const response = await axiosWithAuth.post("/api/info/bio", { bio });
+      return response.data;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["userInfo"] });
       setIsEditingBio(false);
-      
       toast({
         title: "프로필 업데이트 성공",
         description: "자기소개가 업데이트되었습니다.",
       });
-    } catch (error) {
+    },
+    onError: (error) => {
       toast({
         title: "업데이트 실패",
         description: "자기소개 업데이트에 실패했습니다.",
         variant: "destructive",
       });
-    }
+      console.error("Error updating bio:", error);
+    },
+  });
+
+  const handleUpdateBio = () => {
+    updateBioMutation.mutate(newBio);
   };
 
   if (isLoading) {
@@ -103,6 +90,25 @@ const Info = () => {
         <div className="container mx-auto px-4 pt-32 pb-16">
           <div className="text-center">
             <p>로딩 중...</p>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  if (isError) {
+    return (
+      <div className="min-h-screen bg-white text-gray-900">
+        <Navbar />
+        <div className="container mx-auto px-4 pt-32 pb-16">
+          <div className="text-center">
+            <p>정보를 불러오는데 실패했습니다.</p>
+            <Button
+              onClick={() => navigate("/login")}
+              className="mt-4 bg-blue-600 hover:bg-blue-700"
+            >
+              로그인 페이지로 이동
+            </Button>
           </div>
         </div>
       </div>
@@ -123,27 +129,29 @@ const Info = () => {
                       <UserCircle className="h-20 w-20 text-blue-600" />
                     </div>
                   </div>
-                  <CardTitle className="text-center mt-4">{userInfo.name}</CardTitle>
-                  <CardDescription className="text-center text-gray-500">@{userInfo.username}</CardDescription>
+                  <CardTitle className="text-center mt-4">{userInfo?.name || ""}</CardTitle>
+                  <CardDescription className="text-center text-gray-500">@{userInfo?.username || ""}</CardDescription>
                 </CardHeader>
                 <CardContent>
                   <div className="space-y-4">
                     <div className="flex items-center gap-3">
                       <Mail className="h-5 w-5 text-blue-600" />
-                      <span className="text-sm text-gray-700">{userInfo.email}</span>
+                      <span className="text-sm text-gray-700">{userInfo?.email || ""}</span>
                     </div>
                     <div className="flex items-center gap-3">
                       <Phone className="h-5 w-5 text-blue-600" />
-                      <span className="text-sm text-gray-700">{userInfo.phone}</span>
+                      <span className="text-sm text-gray-700">{userInfo?.phone || ""}</span>
                     </div>
                     <div className="flex items-center gap-3">
                       <BookOpen className="h-5 w-5 text-blue-600" />
-                      <span className="text-sm text-gray-700">학번: {userInfo.studentId}</span>
+                      <span className="text-sm text-gray-700">학번: {userInfo?.studentId || ""}</span>
                     </div>
-                    <div className="flex items-center gap-3">
-                      <Calendar className="h-5 w-5 text-blue-600" />
-                      <span className="text-sm text-gray-700">가입일: {userInfo.joinDate}</span>
-                    </div>
+                    {userInfo?.joinDate && (
+                      <div className="flex items-center gap-3">
+                        <Calendar className="h-5 w-5 text-blue-600" />
+                        <span className="text-sm text-gray-700">가입일: {userInfo.joinDate}</span>
+                      </div>
+                    )}
                   </div>
                 </CardContent>
               </Card>
@@ -177,12 +185,13 @@ const Info = () => {
                       <Button 
                         onClick={handleUpdateBio}
                         className="bg-blue-600 hover:bg-blue-700"
+                        disabled={updateBioMutation.isPending}
                       >
-                        저장
+                        {updateBioMutation.isPending ? "저장 중..." : "저장"}
                       </Button>
                     </>
                   ) : (
-                    <p className="text-gray-700 whitespace-pre-line">{userInfo.bio}</p>
+                    <p className="text-gray-700 whitespace-pre-line">{userInfo?.bio || ""}</p>
                   )}
                 </CardContent>
               </Card>
@@ -199,15 +208,34 @@ const Info = () => {
                       <CardTitle>내가 작성한 게시글</CardTitle>
                     </CardHeader>
                     <CardContent>
-                      <div className="text-center text-gray-500 py-10">
-                        <p>아직 작성한 게시글이 없습니다.</p>
-                        <Button
-                          onClick={() => navigate("/tech/write")}
-                          className="mt-4 bg-blue-600 hover:bg-blue-700"
-                        >
-                          첫 게시글 작성하기
-                        </Button>
-                      </div>
+                      {userInfo?.feeds && userInfo.feeds.length > 0 ? (
+                        <div className="space-y-4">
+                          {userInfo.feeds.map((feed) => (
+                            <div 
+                              key={feed.id} 
+                              className="p-4 border border-gray-200 rounded-lg hover:shadow-md cursor-pointer"
+                              onClick={() => navigate(`/tech/${feed.id}`)}
+                            >
+                              <div className="flex items-center justify-between">
+                                <h3 className="font-medium">{feed.title || "제목 없음"}</h3>
+                                <span className="text-sm text-gray-500">
+                                  {new Date(feed.uploadAt).toLocaleDateString()}
+                                </span>
+                              </div>
+                            </div>
+                          ))}
+                        </div>
+                      ) : (
+                        <div className="text-center text-gray-500 py-10">
+                          <p>아직 작성한 게시글이 없습니다.</p>
+                          <Button
+                            onClick={() => navigate("/tech/write")}
+                            className="mt-4 bg-blue-600 hover:bg-blue-700"
+                          >
+                            첫 게시글 작성하기
+                          </Button>
+                        </div>
+                      )}
                     </CardContent>
                   </Card>
                 </TabsContent>
