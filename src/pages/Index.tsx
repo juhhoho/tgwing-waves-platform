@@ -14,7 +14,7 @@ const Index = () => {
         <main className="container mx-auto px-4 pt-32 pb-16">
           <div className="max-w-4xl mx-auto text-center">
             <img 
-              src="/lovable-uploads/1098ddee-4dcd-4c55-ad08-3f7f7e066523.png" 
+              src="/lovable-uploads/4a5e0136-fa69-4d89-a1ee-b42ee2a95138.png" 
               alt="TGwinG Logo" 
               className="mx-auto mb-12 h-20 object-contain"
             />

@@ -1,3 +1,4 @@
+
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
@@ -15,6 +16,7 @@ import StudyDetail from "./pages/StudyDetail";
 import About from "./pages/About";
 import Login from "./pages/Login";
 import Register from "./pages/Register";
+import Info from "./pages/Info"; // Import the new Info page
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -41,6 +43,16 @@ const App = () => (
           <Route path="/about" element={<About />} />
           <Route path="/login" element={<Login />} />
           <Route path="/register" element={<Register />} />
+          
+          {/* New Protected Info Route */}
+          <Route
+            path="/info"
+            element={
+              <ProtectedRoute>
+                <Info />
+              </ProtectedRoute>
+            }
+          />
           
           {/* Protected Routes */}
           <Route

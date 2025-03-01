@@ -2,11 +2,13 @@
 import { Button } from "@/components/ui/button";
 import { useNavigate } from "react-router-dom";
 import { useToast } from "@/components/ui/use-toast";
+import { UserCircle } from "lucide-react";
 
 const Navbar = () => {
   const navigate = useNavigate();
   const { toast } = useToast();
   const isAuthenticated = !!localStorage.getItem('accessToken');
+  const username = localStorage.getItem('username');
 
   const handleNavigation = (path: string) => {
     if (!isAuthenticated) {
@@ -26,6 +28,11 @@ const Navbar = () => {
       <div className="container mx-auto px-4">
         <div className="flex items-center justify-between h-16">
           <a href="/" className="flex items-center space-x-2 text-gray-900 hover:text-gray-700 transition-colors">
+            <img 
+              src="/lovable-uploads/4a5e0136-fa69-4d89-a1ee-b42ee2a95138.png" 
+              alt="TGwinG Logo" 
+              className="h-8 object-contain"
+            />
             <span className="text-xl font-bold">TGwinG</span>
           </a>
           
@@ -53,16 +60,27 @@ const Navbar = () => {
 
           <div className="flex items-center space-x-4">
             {isAuthenticated ? (
-              <Button 
-                variant="ghost" 
-                className="text-gray-600 hover:text-gray-900 text-sm"
-                onClick={() => {
-                  localStorage.removeItem('accessToken');
-                  window.location.href = '/';
-                }}
-              >
-                로그아웃
-              </Button>
+              <div className="flex items-center space-x-4">
+                <Button 
+                  variant="ghost" 
+                  className="text-gray-600 hover:text-gray-900 text-sm flex items-center gap-1"
+                  onClick={() => navigate('/info')}
+                >
+                  <UserCircle className="h-5 w-5" />
+                  <span>{username || '사용자'}</span>
+                </Button>
+                <Button 
+                  variant="ghost" 
+                  className="text-gray-600 hover:text-gray-900 text-sm"
+                  onClick={() => {
+                    localStorage.removeItem('accessToken');
+                    localStorage.removeItem('username');
+                    window.location.href = '/';
+                  }}
+                >
+                  로그아웃
+                </Button>
+              </div>
             ) : (
               <>
                 <Button 

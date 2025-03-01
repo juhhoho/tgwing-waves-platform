@@ -5,7 +5,7 @@ const Header = () => {
       <h1 className="text-4xl font-bold text-gray-900 mb-6">TGWing</h1>
       <div className="flex justify-center mb-6">
         <img 
-          src="/lovable-uploads/1098ddee-4dcd-4c55-ad08-3f7f7e066523.png" 
+          src="/lovable-uploads/4a5e0136-fa69-4d89-a1ee-b42ee2a95138.png" 
           alt="TGWing Logo" 
           className="h-48 object-contain" 
         />
