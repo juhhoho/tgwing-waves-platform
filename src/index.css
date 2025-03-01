@@ -66,42 +66,49 @@
     --ring: 212.7 26.8% 83.9%;
   }
 
-  /* 픽셀 아트 스타일 적용을 위한 기본 설정 */
   * {
     @apply border-border;
-    image-rendering: optimizeSpeed;
-    image-rendering: -moz-crisp-edges;
-    image-rendering: -webkit-optimize-contrast;
-    image-rendering: optimize-contrast;
-    image-rendering: pixelated;
-    -ms-interpolation-mode: nearest-neighbor;
   }
 
   body {
     @apply bg-background text-foreground;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol";
   }
 }
 
-/* 애니메이션 키프레임 수정 */
-@keyframes wave {
-  0% {
-    transform: translateY(0);
-  }
-  25% {
-    transform: translateY(4px);
-  }
-  50% {
-    transform: translateY(8px);
-  }
-  75% {
-    transform: translateY(4px);
-  }
-  100% {
-    transform: translateY(0);
-  }
+/* Code block styling to match the second image */
+pre, code {
+  font-family: 'SFMono-Regular', Consolas, 'Liberation Mono', Menlo, Courier, monospace;
+  background-color: #1e1e1e;
+  color: #d4d4d4;
+  border-radius: 4px;
+  padding: 0.2em 0.4em;
+  font-size: 0.9em;
 }
 
-.animate-wave {
-  animation: wave 3s ease-in-out infinite;
-  image-rendering: pixelated;
+pre {
+  padding: 1em;
+  overflow-x: auto;
+}
+
+pre code {
+  background-color: transparent;
+  padding: 0;
+}
+
+/* Syntax highlighting colors */
+.token.comment { color: #608b4e; }
+.token.keyword { color: #569cd6; }
+.token.string { color: #ce9178; }
+.token.function { color: #dcdcaa; }
+.token.number { color: #b5cea8; }
+.token.class-name { color: #4ec9b0; }
+.token.punctuation { color: #d4d4d4; }
+.token.operator { color: #d4d4d4; }
+.token.property { color: #9cdcfe; }
+
+/* Button styles */
+.pagination-button {
+  opacity: 1 !important;
+  transition: opacity 0.2s ease-in-out;
 }

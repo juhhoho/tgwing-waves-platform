@@ -59,18 +59,34 @@ const Tech = () => {
   });
 
   return (
-    <div className="min-h-screen bg-[#111827] text-white overflow-hidden">
+    <div className="min-h-screen bg-white text-gray-900">
       <Navbar />
       <div className="relative">
-        <div className="container mx-auto px-4 pt-32 pb-16 relative z-10">
+        <div className="container mx-auto px-4 pt-28 pb-16">
+          {/* Hero Section */}
+          <div className="w-full h-48 bg-gradient-to-r from-blue-600 to-purple-600 rounded-lg mb-10 flex items-center justify-center relative overflow-hidden">
+            <div className="absolute inset-0">
+              <img 
+                src="/lovable-uploads/3e204bef-a200-4c0a-855b-4311a04bc6f1.png" 
+                alt="Tech Blog Banner" 
+                className="w-full h-full object-cover opacity-50"
+              />
+            </div>
+            <div className="text-center z-10">
+              <h1 className="text-4xl font-bold text-white mb-2">Tech-Blog</h1>
+              <p className="text-white/80">최신 기술을 나누는 공간입니다</p>
+            </div>
+          </div>
+          
           <div className="flex gap-8">
             {/* Hashtag Sidebar */}
-            <div className="w-48 space-y-2">
+            <div className="w-48 space-y-2 hidden md:block">
+              <div className="font-bold text-lg mb-4 text-gray-800">Categories</div>
               <Button
                 variant="ghost"
                 className={cn(
-                  "w-full justify-start text-left",
-                  !selectedHashtag && "bg-white/10"
+                  "w-full justify-start text-left rounded-full text-sm",
+                  !selectedHashtag && "bg-blue-50 text-blue-600 font-medium"
                 )}
                 onClick={() => setSelectedHashtag("")}
               >
@@ -82,8 +98,8 @@ const Tech = () => {
                   key={hashtag}
                   variant="ghost"
                   className={cn(
-                    "w-full justify-start text-left capitalize",
-                    selectedHashtag === hashtag && "bg-white/10"
+                    "w-full justify-start text-left capitalize rounded-full text-sm",
+                    selectedHashtag === hashtag && "bg-blue-50 text-blue-600 font-medium"
                   )}
                   onClick={() => setSelectedHashtag(hashtag)}
                 >
@@ -100,7 +116,7 @@ const Tech = () => {
                   <Input
                     type="search"
                     placeholder="검색어를 입력하세요..."
-                    className="pl-10 bg-white/5 border-white/10 text-white placeholder:text-gray-400"
+                    className="pl-10 rounded-full border-gray-300 text-gray-800 placeholder:text-gray-400"
                     value={searchTerm}
                     onChange={(e) => setSearchTerm(e.target.value)}
                   />
@@ -108,16 +124,16 @@ const Tech = () => {
                 </div>
                 <Button
                   onClick={() => navigate("/tech/write")}
-                  className="whitespace-nowrap bg-tgwing-600 hover:bg-tgwing-700"
+                  className="whitespace-nowrap bg-blue-600 hover:bg-blue-700 rounded-full"
                 >
                   <PlusCircle className="w-4 h-4 mr-2" />
                   글 작성
                 </Button>
               </div>
 
-              <div className="space-y-4 mb-8">
+              <div className="space-y-6 mb-8">
                 {isLoading ? (
-                  <div className="text-center text-white">로딩 중...</div>
+                  <div className="text-center text-gray-600">로딩 중...</div>
                 ) : (
                   data?.posts.map((post) => (
                     <TechBlogCard key={post.id} post={post} />
@@ -126,33 +142,13 @@ const Tech = () => {
               </div>
 
               <Pagination
-                className="mt-8 text-white dark:text-white opacity-100 transition-opacity duration-200 ease-in-out"
+                className="mt-8"
                 currentPage={page}
                 totalPages={data?.totalPages || 1}
                 onPageChange={setPage}
-                color="white"
               />
             </div>
           </div>
-        </div>
-
-        {/* Decorative waves */}
-        <div className="absolute bottom-0 left-0 right-0 h-64 z-0">
-          <svg className="w-full h-full" viewBox="0 0 1440 320" xmlns="http://www.w3.org/2000/svg">
-            <path 
-              fill="#0284c7" 
-              fillOpacity="0.1" 
-              d="M0,96L48,128C96,160,192,224,288,245.3C384,267,480,245,576,234.7C672,224,768,224,864,213.3C960,203,1056,181,1152,181.3C1248,181,1344,203,1392,213.3L1440,224L1440,320L1392,320C1344,320,1248,320,1152,320C1056,320,960,320,864,320C768,320,672,320,576,320C480,320,384,320,288,320C192,320,96,320,48,320L0,320Z"
-              className="animate-wave"
-            />
-            <path 
-              fill="#0284c7" 
-              fillOpacity="0.2" 
-              d="M0,160L48,170.7C96,181,192,203,288,213.3C384,224,480,224,576,213.3C672,203,768,181,864,181.3C960,181,1056,203,1152,208C1248,213,1344,203,1392,197.3L1440,192L1440,320L1392,320C1344,320,1248,320,1152,320C1056,320,960,320,864,320C768,320,672,320,576,320C480,320,384,320,288,320C192,320,96,320,48,320L0,320Z"
-              className="animate-wave"
-              style={{ animationDelay: "0.2s" }}
-            />
-          </svg>
         </div>
       </div>
     </div>

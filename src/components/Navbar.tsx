@@ -1,6 +1,5 @@
 
 import { Button } from "@/components/ui/button";
-import { Activity, Waves } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { useToast } from "@/components/ui/use-toast";
 
@@ -23,34 +22,32 @@ const Navbar = () => {
   };
 
   return (
-    <nav className="fixed top-0 left-0 right-0 bg-white/95 backdrop-blur-md z-50 border-b border-gray-200">
+    <nav className="fixed top-0 left-0 right-0 bg-white z-50 shadow-sm">
       <div className="container mx-auto px-4">
         <div className="flex items-center justify-between h-16">
-          <a href="/" className="flex items-center space-x-2 text-tgwing-600 hover:text-tgwing-700 transition-colors">
-            <Waves className="w-6 h-6" />
-            <span className="text-xl font-semibold">TGWing</span>
+          <a href="/" className="flex items-center space-x-2 text-gray-900 hover:text-gray-700 transition-colors">
+            <span className="text-xl font-bold">TGwinG</span>
           </a>
           
           <div className="hidden md:flex items-center space-x-8">
-            <a href="/about" className="text-gray-600 hover:text-tgwing-600 transition-colors">동아리 소개</a>
+            <a href="/about" className="text-gray-600 hover:text-gray-900 transition-colors text-sm">About</a>
             <button 
               onClick={() => handleNavigation('/operation')}
-              className="text-gray-600 hover:text-tgwing-600 transition-colors"
+              className="text-gray-600 hover:text-gray-900 transition-colors text-sm"
             >
-              운영 소식
+              Projects
             </button>
             <button 
               onClick={() => handleNavigation('/tech')}
-              className="text-gray-600 hover:text-tgwing-600 transition-colors"
+              className="text-gray-600 hover:text-gray-900 transition-colors text-sm"
             >
-              기술 블로그
+              Blog
             </button>
             <button 
               onClick={() => handleNavigation('/study')}
-              className="text-gray-600 hover:text-tgwing-600 transition-colors flex items-center gap-1"
+              className="text-gray-600 hover:text-gray-900 transition-colors text-sm"
             >
-              <Activity className="w-4 h-4" />
-              스터디
+              Study
             </button>
           </div>
 
@@ -58,7 +55,7 @@ const Navbar = () => {
             {isAuthenticated ? (
               <Button 
                 variant="ghost" 
-                className="text-gray-600 hover:text-tgwing-600"
+                className="text-gray-600 hover:text-gray-900 text-sm"
                 onClick={() => {
                   localStorage.removeItem('accessToken');
                   window.location.href = '/';
@@ -70,13 +67,13 @@ const Navbar = () => {
               <>
                 <Button 
                   variant="ghost" 
-                  className="text-gray-600 hover:text-tgwing-600"
+                  className="text-gray-600 hover:text-gray-900 text-sm"
                   onClick={() => navigate('/login')}
                 >
                   로그인
                 </Button>
                 <Button 
-                  className="bg-tgwing-600 hover:bg-tgwing-700 text-white"
+                  className="bg-blue-600 hover:bg-blue-700 text-white text-sm rounded-full"
                   onClick={() => navigate('/register')}
                 >
                   회원가입

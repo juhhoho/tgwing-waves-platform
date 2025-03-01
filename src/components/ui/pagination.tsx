@@ -26,8 +26,8 @@ const Pagination = ({
           onClick={() => onPageChange(i)}
           className={cn(
             buttonVariants({ variant: currentPage === i ? "default" : "outline" }),
-            "w-10 h-10 text-white",
-            currentPage === i ? "bg-tgwing-600" : "bg-white/10 hover:bg-white/20"
+            "w-10 h-10",
+            currentPage === i ? "bg-blue-600 text-white border-blue-600" : "bg-white text-gray-700 border-gray-300 hover:bg-gray-50"
           )}
         >
           {i}
@@ -49,7 +49,7 @@ const Pagination = ({
         disabled={currentPage === 1}
         className={cn(
           buttonVariants({ variant: "outline" }),
-          "w-10 h-10 bg-white/10 hover:bg-white/20 text-white",
+          "w-10 h-10 bg-white text-gray-700 border-gray-300 hover:bg-gray-50",
           "opacity-100",
           currentPage === 1 && "opacity-50 cursor-not-allowed"
         )}
@@ -62,7 +62,7 @@ const Pagination = ({
         disabled={currentPage === totalPages}
         className={cn(
           buttonVariants({ variant: "outline" }),
-          "w-10 h-10 bg-white/10 hover:bg-white/20 text-white",
+          "w-10 h-10 bg-white text-gray-700 border-gray-300 hover:bg-gray-50",
           "opacity-100",
           currentPage === totalPages && "opacity-50 cursor-not-allowed"
         )}

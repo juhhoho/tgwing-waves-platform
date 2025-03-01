@@ -72,17 +72,19 @@ const OperationWrite = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-[#87CEEB] to-[#1E90FF]">
+    <div className="min-h-screen bg-white">
       <Navbar />
       <div className="container mx-auto px-4 pt-24 pb-16">
-        <form onSubmit={handleSubmit} className="space-y-6">
+        <form onSubmit={handleSubmit} className="space-y-6 max-w-4xl mx-auto">
+          <h1 className="text-2xl font-bold text-gray-900">게시글 작성</h1>
+          
           <div>
             <Input
               type="text"
               placeholder="제목을 입력하세요"
               value={title}
               onChange={(e) => setTitle(e.target.value)}
-              className="text-lg font-semibold"
+              className="text-lg font-semibold border-gray-300"
             />
           </div>
           
@@ -113,10 +115,15 @@ const OperationWrite = () => {
               type="button"
               variant="outline"
               onClick={() => navigate("/operation")}
+              className="border-gray-300 text-gray-700"
             >
               취소
             </Button>
-            <Button type="submit" disabled={isSubmitting}>
+            <Button 
+              type="submit" 
+              disabled={isSubmitting}
+              className="bg-blue-600 hover:bg-blue-700"
+            >
               {isSubmitting ? "저장 중..." : "저장"}
             </Button>
           </div>
