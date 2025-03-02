@@ -61,25 +61,29 @@ const StudyEdit = () => {
     queryFn: async () => {
       const response = await axiosWithAuth.get<StudyResponse>(`/api/studies/${id}`);
       return response.data.response;
-    },
-    onSuccess: (data) => {
+    }
+  });
+
+  // Set form data when study data is loaded
+  useEffect(() => {
+    if (studyData) {
       setFormData({
-        title: data.title,
-        description: data.description,
-        capacity: data.capacity,
-        location: data.location,
-        status: data.status,
-        planFile: data.planFile || ""
+        title: studyData.title,
+        description: studyData.description,
+        capacity: studyData.capacity,
+        location: studyData.location,
+        status: studyData.status,
+        planFile: studyData.planFile || ""
       });
       
-      if (data.planFile) {
-        const parts = data.planFile.split('/');
+      if (studyData.planFile) {
+        const parts = studyData.planFile.split('/');
         const fileNameWithId = parts[parts.length - 1];
         const fileNameParts = fileNameWithId.split('-');
         setFileName(fileNameParts.slice(1).join('-'));
       }
     }
-  });
+  }, [studyData]);
 
   // Update study mutation
   const updateStudyMutation = useMutation({
