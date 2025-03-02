@@ -1,12 +1,15 @@
 
-import { useState } from 'react';
+import { useState, useRef } from 'react';
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { useToast } from "@/components/ui/use-toast";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { Badge } from "@/components/ui/badge";
-import { Trash2 } from "lucide-react";
+import { Upload, FileText } from "lucide-react";
+import { v4 as uuidv4 } from "uuid";
+import { useAxiosWithAuth } from "@/hooks/useAxiosWithAuth";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 
 interface StudyFormProps {
   onSubmit: (study: any) => void;
@@ -16,15 +19,19 @@ const StudyFormMultistep = ({ onSubmit }: StudyFormProps) => {
   const [step, setStep] = useState(1);
   const [isOpen, setIsOpen] = useState(false);
   const { toast } = useToast();
+  const fileInputRef = useRef<HTMLInputElement>(null);
+  const axiosWithAuth = useAxiosWithAuth();
   const [formData, setFormData] = useState({
     title: '',
     description: '',
     location: '',
     maxMembers: 4,
     schedule: '',
-    curriculum: [''],
-    goals: ['']
+    status: 'RECRUITING',
+    planFile: ''
   });
+  const [fileName, setFileName] = useState('');
+  const [isUploading, setIsUploading] = useState(false);
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -32,6 +39,16 @@ const StudyFormMultistep = ({ onSubmit }: StudyFormProps) => {
       setStep(step + 1);
       return;
     }
+    
+    if (step === 3 && !formData.planFile) {
+      toast({
+        title: "파일 필요",
+        description: "스터디 계획서를 업로드해주세요.",
+        variant: "destructive"
+      });
+      return;
+    }
+    
     onSubmit(formData);
     setIsOpen(false);
     setStep(1);
@@ -41,36 +58,54 @@ const StudyFormMultistep = ({ onSubmit }: StudyFormProps) => {
       location: '',
       maxMembers: 4,
       schedule: '',
-      curriculum: [''],
-      goals: ['']
+      status: 'RECRUITING',
+      planFile: ''
     });
+    setFileName('');
   };
 
-  const handleArrayInput = (
-    field: 'curriculum' | 'goals',
-    index: number,
-    value: string
-  ) => {
-    setFormData(prev => ({
-      ...prev,
-      [field]: prev[field].map((item: string, i: number) => 
-        i === index ? value : item
-      )
-    }));
-  };
-
-  const addArrayItem = (field: 'curriculum' | 'goals') => {
-    setFormData(prev => ({
-      ...prev,
-      [field]: [...prev[field], '']
-    }));
-  };
-
-  const removeArrayItem = (field: 'curriculum' | 'goals', index: number) => {
-    setFormData(prev => ({
-      ...prev,
-      [field]: prev[field].filter((_: string, i: number) => i !== index)
-    }));
+  const handleFileUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    
+    if (!file) return;
+    
+    try {
+      setIsUploading(true);
+      const fileId = `${uuidv4()}-${file.name}`;
+      setFileName(file.name);
+      
+      const response = await axiosWithAuth.get("/api/image/presignedUrl/upload", {
+        params: { imageName: fileId },
+        headers: {
+          "Content-Type": "application/json"
+        }
+      });
+      
+      const presignedUrl = response.data.response.presignedUrl;
+      
+      await axiosWithAuth.put(presignedUrl, file, {
+        headers: {
+          "Content-Type": file.type
+        }
+      });
+      
+      const fileUrl = `https://demo-bucket-605134439665.s3.ap-northeast-2.amazonaws.com/${fileId}`;
+      setFormData({...formData, planFile: fileUrl});
+      
+      toast({
+        title: "업로드 성공",
+        description: "스터디 계획서가 성공적으로 업로드되었습니다."
+      });
+    } catch (error) {
+      console.error("파일 업로드 실패:", error);
+      toast({
+        title: "업로드 실패",
+        description: "파일 업로드 중 오류가 발생했습니다.",
+        variant: "destructive"
+      });
+    } finally {
+      setIsUploading(false);
+    }
   };
 
   const renderStep = () => {
@@ -131,69 +166,56 @@ const StudyFormMultistep = ({ onSubmit }: StudyFormProps) => {
                 max={20}
               />
             </div>
+            <div>
+              <label className="text-sm font-medium text-gray-700">스터디 상태</label>
+              <Select 
+                value={formData.status} 
+                onValueChange={(value) => setFormData({...formData, status: value})}
+              >
+                <SelectTrigger className="mt-1">
+                  <SelectValue placeholder="상태 선택" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="RECRUITING">모집중</SelectItem>
+                  <SelectItem value="IN_PROGRESS">진행중</SelectItem>
+                  <SelectItem value="COMPLETED">완료됨</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
           </div>
         );
       case 3:
         return (
           <div className="space-y-4">
             <div>
-              <label className="text-sm font-medium text-gray-700">커리큘럼</label>
-              {formData.curriculum.map((item, index) => (
-                <div key={index} className="flex gap-2 mt-2">
-                  <Input
-                    value={item}
-                    onChange={(e) => handleArrayInput('curriculum', index, e.target.value)}
-                    placeholder="커리큘럼 항목을 입력하세요"
-                  />
-                  <Button
-                    type="button"
-                    variant="outline"
-                    size="icon"
-                    onClick={() => removeArrayItem('curriculum', index)}
-                    className="text-red-500 hover:text-red-600 hover:bg-red-50"
-                  >
-                    <Trash2 className="h-4 w-4" />
-                  </Button>
-                </div>
-              ))}
-              <Button
-                type="button"
-                variant="outline"
-                onClick={() => addArrayItem('curriculum')}
-                className="mt-2 text-blue-600 hover:bg-blue-50 hover:text-blue-700"
-              >
-                + 커리큘럼 추가
-              </Button>
-            </div>
-            
-            <div>
-              <label className="text-sm font-medium text-gray-700">목표</label>
-              {formData.goals.map((item, index) => (
-                <div key={index} className="flex gap-2 mt-2">
-                  <Input
-                    value={item}
-                    onChange={(e) => handleArrayInput('goals', index, e.target.value)}
-                    placeholder="스터디 목표를 입력하세요"
-                  />
-                  <Button
-                    type="button"
-                    variant="outline"
-                    size="icon"
-                    onClick={() => removeArrayItem('goals', index)}
-                    className="text-red-500 hover:text-red-600 hover:bg-red-50"
-                  >
-                    <Trash2 className="h-4 w-4" />
-                  </Button>
-                </div>
-              ))}
-              <Button
-                type="button"
-                variant="outline"
-                onClick={() => addArrayItem('goals')}
-                className="mt-2 text-blue-600 hover:bg-blue-50 hover:text-blue-700"
-              >
-                + 목표 추가
-              </Button>
+              <label className="text-sm font-medium text-gray-700">스터디 계획서</label>
+              <div className="mt-2 flex flex-col items-center justify-center border-2 border-dashed border-gray-300 rounded-lg p-6 cursor-pointer hover:bg-gray-50 transition-colors" onClick={() => fileInputRef.current?.click()}>
+                <input
+                  type="file"
+                  ref={fileInputRef}
+                  className="hidden"
+                  onChange={handleFileUpload}
+                  accept=".pdf,.doc,.docx,.txt"
+                />
+                {formData.planFile ? (
+                  <div className="text-center">
+                    <FileText className="mx-auto h-12 w-12 text-blue-600 mb-2" />
+                    <p className="text-sm font-medium text-gray-900">{fileName}</p>
+                    <p className="text-xs text-gray-500 mt-1">파일이 업로드되었습니다</p>
+                  </div>
+                ) : (
+                  <div className="text-center">
+                    <Upload className="mx-auto h-12 w-12 text-gray-400 mb-2" />
+                    <p className="text-sm font-medium text-gray-900">스터디 계획서 업로드</p>
+                    <p className="text-xs text-gray-500 mt-1">PDF, Word, Text 파일 (최대 10MB)</p>
+                  </div>
+                )}
+                {isUploading && (
+                  <div className="mt-2">
+                    <div className="animate-spin rounded-full h-6 w-6 border-t-2 border-blue-500"></div>
+                  </div>
+                )}
+              </div>
             </div>
           </div>
         );

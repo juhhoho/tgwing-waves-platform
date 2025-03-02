@@ -58,7 +58,8 @@ const Study = () => {
         organizer: localStorage.getItem('username') || '',
         joinYear: parseInt(selectedYear),
         joinSemester: parseInt(selectedSemester),
-        status: "RECRUITING"
+        status: newStudy.status || "RECRUITING",
+        planFile: newStudy.planFile || ""
       };
 
       await axiosWithAuth.post("/api/studies", studyData);

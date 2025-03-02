@@ -1,5 +1,5 @@
 
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { Button } from "@/components/ui/button";
@@ -7,7 +7,7 @@ import { useToast } from "@/components/ui/use-toast";
 import Navbar from "@/components/Navbar";
 import { useAxiosWithAuth } from "@/hooks/useAxiosWithAuth";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { CalendarIcon, Users, MapPin, Clock, Edit2, Trash2 } from "lucide-react";
+import { CalendarIcon, Users, MapPin, Clock, Edit2, Trash2, Download, FileText } from "lucide-react";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
 import { Badge } from "@/components/ui/badge";
@@ -28,6 +28,7 @@ interface StudyDetail {
   joinSemester: number;
   status: "RECRUITING" | "IN_PROGRESS" | "COMPLETED";
   studyParticipants: StudyParticipant[];
+  planFile?: string;
 }
 
 interface StudyResponse {
@@ -117,27 +118,6 @@ const StudyDetail = () => {
     }
   });
 
-  // Update study mutation
-  const updateStudyMutation = useMutation({
-    mutationFn: async (updatedStudy: any) => {
-      return await axiosWithAuth.patch(`/api/studies/${id}`, updatedStudy);
-    },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["study", id] });
-      toast({
-        title: "수정 완료",
-        description: "스터디 정보가 성공적으로 수정되었습니다."
-      });
-    },
-    onError: () => {
-      toast({
-        title: "수정 실패",
-        description: "스터디 정보 수정에 실패했습니다.",
-        variant: "destructive"
-      });
-    }
-  });
-
   const handleJoinStudy = () => {
     joinStudyMutation.mutate();
   };
@@ -165,6 +145,31 @@ const StudyDetail = () => {
       default:
         return null;
     }
+  };
+
+  const handleDownloadPlan = () => {
+    if (studyData?.planFile) {
+      window.open(studyData.planFile, '_blank');
+      toast({
+        title: "다운로드 시작",
+        description: "스터디 계획서 다운로드가 시작되었습니다."
+      });
+    } else {
+      toast({
+        title: "파일 없음",
+        description: "다운로드할 스터디 계획서가 없습니다.",
+        variant: "destructive"
+      });
+    }
+  };
+
+  const getFileNameFromUrl = (url: string) => {
+    if (!url) return "스터디 계획서";
+    const parts = url.split('/');
+    const fileNameWithId = parts[parts.length - 1];
+    const fileNameParts = fileNameWithId.split('-');
+    // Remove the UUID part
+    return fileNameParts.slice(1).join('-');
   };
 
   const isParticipant = studyData?.studyParticipants?.some(
@@ -256,6 +261,31 @@ const StudyDetail = () => {
                   {studyData?.description}
                 </div>
               </div>
+              
+              {studyData?.planFile && (
+                <>
+                  <Separator className="my-6" />
+                  <div className="bg-gray-50 p-4 rounded-lg border border-gray-200">
+                    <div className="flex items-center justify-between">
+                      <div className="flex items-center space-x-3">
+                        <FileText className="h-8 w-8 text-blue-600" />
+                        <div>
+                          <h4 className="font-medium text-gray-900">스터디 계획서</h4>
+                          <p className="text-sm text-gray-500">{getFileNameFromUrl(studyData.planFile)}</p>
+                        </div>
+                      </div>
+                      <Button 
+                        variant="outline" 
+                        onClick={handleDownloadPlan}
+                        className="flex items-center gap-2 text-blue-600 border-blue-200 hover:bg-blue-50"
+                      >
+                        <Download className="h-4 w-4" />
+                        다운로드
+                      </Button>
+                    </div>
+                  </div>
+                </>
+              )}
             </CardContent>
             
             <CardFooter className="flex justify-end pt-4">
