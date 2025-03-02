@@ -1,3 +1,4 @@
+
 import { useState, useEffect, useRef } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { useQuery, useMutation } from "@tanstack/react-query";
@@ -9,7 +10,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Card, CardContent, CardHeader, CardTitle, CardFooter } from "@/components/ui/card";
 import Navbar from "@/components/Navbar";
 import { useAxiosWithAuth } from "@/hooks/useAxiosWithAuth";
-import { FileText, Upload, X, PlusCircle, Users } from "lucide-react";
+import { FileText, Upload, X, PlusCircle, Users  } from "lucide-react";
 import { v4 as uuidv4 } from "uuid";
 
 interface StudyDetail {
@@ -26,7 +27,8 @@ interface StudyDetail {
   studyParticipants: {
     username: string;
   }[];
-  planFile?: string;
+  document?: string;
+  schedule?: string;
 }
 
 interface StudyResponse {
@@ -50,7 +52,9 @@ const StudyEdit = () => {
     capacity: 4,
     location: "",
     status: "RECRUITING" as "RECRUITING" | "IN_PROGRESS" | "COMPLETED",
-    planFile: ""
+    document: "",
+    schedule: "",
+    studyParticipants: []
   });
   const [fileName, setFileName] = useState("");
   const [participants, setParticipants] = useState<string[]>([]);
@@ -74,16 +78,18 @@ const StudyEdit = () => {
         capacity: studyData.capacity,
         location: studyData.location,
         status: studyData.status,
-        planFile: studyData.planFile || ""
+        document: studyData.document || "",
+        schedule: studyData.schedule || "", 
+        studyParticipants: studyData.studyParticipants
       });
       
-      if (studyData.planFile) {
-        const parts = studyData.planFile.split('/');
+      if (studyData.document) {
+        const parts = studyData.document.split('/');
         const fileNameWithId = parts[parts.length - 1];
         const fileNameParts = fileNameWithId.split('-');
         setFileName(fileNameParts.slice(1).join('-'));
       }
-      
+
       // Set participants from study data
       if (studyData.studyParticipants && studyData.studyParticipants.length > 0) {
         setParticipants(studyData.studyParticipants.map(p => p.username));
@@ -120,11 +126,12 @@ const StudyEdit = () => {
     
     try {
       setIsUploading(true);
-      const fileId = `${uuidv4()}-${file.name}`;
+      const fileName = `${uuidv4()}-${file.name}`;
       setFileName(file.name);
       
       const response = await axiosWithAuth.get("/api/image/presignedUrl/upload", {
-        params: { imageName: fileId },
+        params: { imageName: fileName },
+        withCredentials: true,
         headers: {
           "Content-Type": "application/json"
         }
@@ -133,18 +140,29 @@ const StudyEdit = () => {
       const presignedUrl = response.data.response.presignedUrl;
       
       await axiosWithAuth.put(presignedUrl, file, {
+        withCredentials: true,
         headers: {
           "Content-Type": file.type
         }
       });
       
-      const fileUrl = `https://demo-bucket-605134439665.s3.ap-northeast-2.amazonaws.com/${fileId}`;
-      setFormData({...formData, planFile: fileUrl});
-      
+      const fileUrl = `https://demo-bucket-605134439665.s3.ap-northeast-2.amazonaws.com/${fileName}`;
+      setFormData({...formData, document: fileUrl});
+    
+      await axiosWithAuth.post("/api/images/presignedUrl/upload", {
+        fileName,
+        withCredentials: true,
+        headers: {
+          "Content-Type": file.type
+        }
+      });
+
       toast({
         title: "업로드 성공",
         description: "스터디 계획서가 성공적으로 업로드되었습니다."
       });
+
+    
     } catch (error) {
       console.error("파일 업로드 실패:", error);
       toast({
@@ -197,18 +215,21 @@ const StudyEdit = () => {
     
     setIsSubmitting(true);
     
+    const participants = studyData?.studyParticipants.map(p => p.username) || [];
+    
     const updateData = {
       title: formData.title,
       description: formData.description,
       capacity: formData.capacity,
-      currentParticipants: participants.length,
+      currentParticipants: studyData?.currentParticipants || 1,
       location: formData.location,
       organizer: studyData?.organizer || localStorage.getItem('username'),
       joinYear: studyData?.joinYear || new Date().getFullYear(),
       joinSemester: studyData?.joinSemester || 1,
       status: formData.status,
-      participants: participants,
-      planFile: formData.planFile
+      participants: formData.studyParticipants,
+      document: formData.document,
+      schedule: formData.schedule
     };
     
     updateStudyMutation.mutate(updateData);
@@ -266,6 +287,14 @@ const StudyEdit = () => {
                       placeholder="예: 2층 동방, 온라인 등"
                     />
                   </div>
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">스터디 일정</label>
+                    <Input
+                      value={formData.schedule}
+                      onChange={(e) => setFormData({...formData, schedule: e.target.value})}
+                      placeholder="예: 매주 화요일 19:00 - 21:00"
+                    />
+                  </div>
                   
                   <div>
                     <label className="block text-sm font-medium text-gray-700 mb-1">최대 인원</label>
@@ -311,7 +340,7 @@ const StudyEdit = () => {
                       onChange={handleFileUpload}
                       accept=".pdf,.doc,.docx,.txt"
                     />
-                    {formData.planFile ? (
+                    {formData.document ? (
                       <div className="text-center">
                         <FileText className="mx-auto h-12 w-12 text-blue-600 mb-2" />
                         <p className="text-sm font-medium text-gray-900">{fileName}</p>
@@ -331,7 +360,7 @@ const StudyEdit = () => {
                     )}
                   </div>
                 </div>
-                
+
                 <div className="space-y-3">
                   <label className="block text-sm font-medium text-gray-700 mb-1">스터디 참가자</label>
                   <div className="flex items-center space-x-2">
