@@ -1,4 +1,3 @@
-
 import { useState, useEffect, useRef } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { useQuery, useMutation } from "@tanstack/react-query";
@@ -10,7 +9,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Card, CardContent, CardHeader, CardTitle, CardFooter } from "@/components/ui/card";
 import Navbar from "@/components/Navbar";
 import { useAxiosWithAuth } from "@/hooks/useAxiosWithAuth";
-import { FileText, Upload } from "lucide-react";
+import { FileText, Upload, X, PlusCircle, Users } from "lucide-react";
 import { v4 as uuidv4 } from "uuid";
 
 interface StudyDetail {
@@ -54,6 +53,8 @@ const StudyEdit = () => {
     planFile: ""
   });
   const [fileName, setFileName] = useState("");
+  const [participants, setParticipants] = useState<string[]>([]);
+  const [newParticipant, setNewParticipant] = useState("");
 
   // Fetch study details
   const { data: studyData, isLoading } = useQuery({
@@ -81,6 +82,11 @@ const StudyEdit = () => {
         const fileNameWithId = parts[parts.length - 1];
         const fileNameParts = fileNameWithId.split('-');
         setFileName(fileNameParts.slice(1).join('-'));
+      }
+      
+      // Set participants from study data
+      if (studyData.studyParticipants && studyData.studyParticipants.length > 0) {
+        setParticipants(studyData.studyParticipants.map(p => p.username));
       }
     }
   }, [studyData]);
@@ -151,6 +157,33 @@ const StudyEdit = () => {
     }
   };
 
+  const handleAddParticipant = () => {
+    if (!newParticipant.trim()) {
+      toast({
+        title: "입력 오류",
+        description: "참가자 이름을 입력해주세요.",
+        variant: "destructive"
+      });
+      return;
+    }
+    
+    if (participants.includes(newParticipant.trim())) {
+      toast({
+        title: "중복 오류",
+        description: "이미 추가된 참가자입니다.",
+        variant: "destructive"
+      });
+      return;
+    }
+    
+    setParticipants([...participants, newParticipant.trim()]);
+    setNewParticipant("");
+  };
+
+  const handleRemoveParticipant = (username: string) => {
+    setParticipants(participants.filter(p => p !== username));
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!formData.title || !formData.description) {
@@ -164,13 +197,11 @@ const StudyEdit = () => {
     
     setIsSubmitting(true);
     
-    const participants = studyData?.studyParticipants.map(p => p.username) || [];
-    
     const updateData = {
       title: formData.title,
       description: formData.description,
       capacity: formData.capacity,
-      currentParticipants: studyData?.currentParticipants || 1,
+      currentParticipants: participants.length,
       location: formData.location,
       organizer: studyData?.organizer || localStorage.getItem('username'),
       joinYear: studyData?.joinYear || new Date().getFullYear(),
@@ -296,6 +327,58 @@ const StudyEdit = () => {
                     {isUploading && (
                       <div className="mt-2">
                         <div className="animate-spin rounded-full h-6 w-6 border-t-2 border-blue-500"></div>
+                      </div>
+                    )}
+                  </div>
+                </div>
+                
+                <div className="space-y-3">
+                  <label className="block text-sm font-medium text-gray-700 mb-1">스터디 참가자</label>
+                  <div className="flex items-center space-x-2">
+                    <Input
+                      placeholder="참가자 아이디를 입력하세요"
+                      value={newParticipant}
+                      onChange={(e) => setNewParticipant(e.target.value)}
+                      className="flex-1"
+                    />
+                    <Button 
+                      type="button" 
+                      onClick={handleAddParticipant}
+                      variant="outline"
+                      className="flex items-center gap-1"
+                    >
+                      <PlusCircle className="h-4 w-4" /> 추가
+                    </Button>
+                  </div>
+                  
+                  <div className="mt-3">
+                    {participants.length > 0 ? (
+                      <div className="border rounded-md p-3 bg-gray-50">
+                        <div className="flex items-center gap-2 mb-2">
+                          <Users className="h-4 w-4 text-blue-600" />
+                          <span className="text-sm font-medium text-gray-600">참가자 목록 ({participants.length}명)</span>
+                        </div>
+                        <div className="flex flex-wrap gap-2">
+                          {participants.map((username, index) => (
+                            <div 
+                              key={index} 
+                              className="flex items-center gap-1 bg-white px-2 py-1 rounded-md border border-gray-300 text-sm"
+                            >
+                              <span>{username}</span>
+                              <button
+                                type="button"
+                                onClick={() => handleRemoveParticipant(username)}
+                                className="text-gray-500 hover:text-red-500"
+                              >
+                                <X className="h-3 w-3" />
+                              </button>
+                            </div>
+                          ))}
+                        </div>
+                      </div>
+                    ) : (
+                      <div className="text-center py-3 border rounded-md border-dashed border-gray-300 bg-gray-50">
+                        <p className="text-sm text-gray-500">등록된 참가자가 없습니다</p>
                       </div>
                     )}
                   </div>
