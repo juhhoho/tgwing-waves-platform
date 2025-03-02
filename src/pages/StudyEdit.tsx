@@ -215,8 +215,6 @@ const StudyEdit = () => {
     
     setIsSubmitting(true);
     
-    const participants = studyData?.studyParticipants.map(p => p.username) || [];
-    
     const updateData = {
       title: formData.title,
       description: formData.description,
@@ -227,7 +225,7 @@ const StudyEdit = () => {
       joinYear: studyData?.joinYear || new Date().getFullYear(),
       joinSemester: studyData?.joinSemester || 1,
       status: formData.status,
-      participants: formData.studyParticipants,
+      participants: participants, // Use the participants state array here
       document: formData.document,
       schedule: formData.schedule
     };
