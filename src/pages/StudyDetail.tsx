@@ -1,5 +1,5 @@
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { Button } from "@/components/ui/button";
@@ -7,32 +7,34 @@ import { useToast } from "@/components/ui/use-toast";
 import Navbar from "@/components/Navbar";
 import { useAxiosWithAuth } from "@/hooks/useAxiosWithAuth";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { CalendarIcon, Users, Clock, BookOpen, CheckCircle, Edit2, Trash2 } from "lucide-react";
-import { format } from "date-fns";
+import { CalendarIcon, Users, MapPin, Clock, Edit2, Trash2 } from "lucide-react";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
 import { Badge } from "@/components/ui/badge";
 
-// Assuming these interfaces are defined in your actual code
+interface StudyParticipant {
+  username: string;
+}
+
 interface StudyDetail {
-  id: string;
+  id: number;
   title: string;
   description: string;
   capacity: number;
   currentParticipants: number;
-  startDate: string;
-  endDate: string;
   location: string;
   organizer: string;
+  joinYear: number;
+  joinSemester: number;
   status: "RECRUITING" | "IN_PROGRESS" | "COMPLETED";
-  topics: string[];
-  participants: Participant[];
+  studyParticipants: StudyParticipant[];
 }
 
-interface Participant {
-  username: string;
-  name: string;
-  role: "ORGANIZER" | "PARTICIPANT";
+interface StudyResponse {
+  isSuccess: boolean;
+  code: string;
+  message: string;
+  response: StudyDetail;
 }
 
 const StudyDetail = () => {
@@ -43,14 +45,16 @@ const StudyDetail = () => {
   const queryClient = useQueryClient();
   const currentUsername = localStorage.getItem('username');
 
-  const { data: study, isLoading } = useQuery({
+  // Fetch study details
+  const { data: studyData, isLoading } = useQuery({
     queryKey: ["study", id],
     queryFn: async () => {
-      const response = await axiosWithAuth.get(`/api/studies/${id}`);
+      const response = await axiosWithAuth.get<StudyResponse>(`/api/studies/${id}`);
       return response.data.response;
     }
   });
 
+  // Join study mutation
   const joinStudyMutation = useMutation({
     mutationFn: async () => {
       return await axiosWithAuth.post(`/api/studies/${id}/join`);
@@ -71,6 +75,7 @@ const StudyDetail = () => {
     }
   });
 
+  // Leave study mutation
   const leaveStudyMutation = useMutation({
     mutationFn: async () => {
       return await axiosWithAuth.post(`/api/studies/${id}/leave`);
@@ -91,6 +96,7 @@ const StudyDetail = () => {
     }
   });
 
+  // Delete study mutation
   const deleteStudyMutation = useMutation({
     mutationFn: async () => {
       return await axiosWithAuth.delete(`/api/studies/${id}`);
@@ -106,6 +112,27 @@ const StudyDetail = () => {
       toast({
         title: "삭제 실패",
         description: "스터디 삭제에 실패했습니다.",
+        variant: "destructive"
+      });
+    }
+  });
+
+  // Update study mutation
+  const updateStudyMutation = useMutation({
+    mutationFn: async (updatedStudy: any) => {
+      return await axiosWithAuth.patch(`/api/studies/${id}`, updatedStudy);
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["study", id] });
+      toast({
+        title: "수정 완료",
+        description: "스터디 정보가 성공적으로 수정되었습니다."
+      });
+    },
+    onError: () => {
+      toast({
+        title: "수정 실패",
+        description: "스터디 정보 수정에 실패했습니다.",
         variant: "destructive"
       });
     }
@@ -130,29 +157,29 @@ const StudyDetail = () => {
   const getStatusBadge = (status: string) => {
     switch (status) {
       case "RECRUITING":
-        return <Badge className="bg-green-500 hover:bg-green-600">모집중</Badge>;
+        return <Badge className="bg-green-500 hover:bg-green-600 text-white">모집중</Badge>;
       case "IN_PROGRESS":
-        return <Badge className="bg-blue-500 hover:bg-blue-600">진행중</Badge>;
+        return <Badge className="bg-blue-500 hover:bg-blue-600 text-white">진행중</Badge>;
       case "COMPLETED":
-        return <Badge className="bg-gray-500 hover:bg-gray-600">완료됨</Badge>;
+        return <Badge className="bg-gray-500 hover:bg-gray-600 text-white">완료됨</Badge>;
       default:
         return null;
     }
   };
 
-  const isParticipant = study?.participants?.some(
-    (p: Participant) => p.username === currentUsername
+  const isParticipant = studyData?.studyParticipants?.some(
+    (p: StudyParticipant) => p.username === currentUsername
   );
   
-  const isOrganizer = study?.organizer === currentUsername;
+  const isOrganizer = studyData?.organizer === currentUsername;
 
   if (isLoading) {
     return (
-      <div className="min-h-screen bg-white text-gray-900">
+      <div className="min-h-screen bg-white">
         <Navbar />
-        <div className="container mx-auto px-4 pt-32">
-          <div className="text-center">
-            <p>로딩 중...</p>
+        <div className="container mx-auto px-4 pt-24">
+          <div className="flex justify-center items-center py-20">
+            <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-blue-500"></div>
           </div>
         </div>
       </div>
@@ -160,21 +187,21 @@ const StudyDetail = () => {
   }
 
   return (
-    <div className="min-h-screen bg-white text-gray-900">
+    <div className="min-h-screen bg-white">
       <Navbar />
-      <div className="container mx-auto px-4 pt-32 pb-16">
+      <div className="container mx-auto px-4 pt-24 pb-16">
         <div className="max-w-4xl mx-auto">
-          <Card className="mb-8 shadow-md">
+          <Card className="mb-8 shadow-sm border border-gray-200">
             <CardHeader className="pb-2">
               <div className="flex justify-between items-start">
                 <div>
-                  <CardTitle className="text-2xl font-bold">{study?.title}</CardTitle>
+                  <CardTitle className="text-2xl font-bold text-gray-800">{studyData?.title}</CardTitle>
                   <CardDescription className="text-gray-500 mt-1">
-                    개설자: {study?.organizer}
+                    개설자: {studyData?.organizer}
                   </CardDescription>
                 </div>
                 <div className="flex items-center gap-2">
-                  {getStatusBadge(study?.status)}
+                  {getStatusBadge(studyData?.status)}
                   {isOrganizer && (
                     <>
                       <Button
@@ -200,38 +227,23 @@ const StudyDetail = () => {
             </CardHeader>
             
             <CardContent className="pt-2">
-              <div className="flex flex-wrap gap-2 mb-4">
-                {study?.topics?.map((topic, index) => (
-                  <Badge key={index} variant="outline" className="bg-blue-50 text-blue-700 border-blue-200">
-                    {topic}
-                  </Badge>
-                ))}
-              </div>
-              
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
                 <div className="flex items-center gap-2">
                   <CalendarIcon className="h-5 w-5 text-blue-600" />
                   <span className="text-gray-700">
-                    {study?.startDate && format(new Date(study.startDate), 'yyyy.MM.dd')} - 
-                    {study?.endDate && format(new Date(study.endDate), 'yyyy.MM.dd')}
+                    {studyData?.joinYear}년 {studyData?.joinSemester}학기
                   </span>
                 </div>
                 <div className="flex items-center gap-2">
                   <Users className="h-5 w-5 text-blue-600" />
                   <span className="text-gray-700">
-                    {study?.currentParticipants}/{study?.capacity} 명
+                    {studyData?.currentParticipants}/{studyData?.capacity} 명
                   </span>
                 </div>
                 <div className="flex items-center gap-2">
-                  <Clock className="h-5 w-5 text-blue-600" />
+                  <MapPin className="h-5 w-5 text-blue-600" />
                   <span className="text-gray-700">
-                    주 2회, 2시간씩
-                  </span>
-                </div>
-                <div className="flex items-center gap-2">
-                  <BookOpen className="h-5 w-5 text-blue-600" />
-                  <span className="text-gray-700">
-                    {study?.location || "온라인"}
+                    {studyData?.location || "온라인"}
                   </span>
                 </div>
               </div>
@@ -241,16 +253,16 @@ const StudyDetail = () => {
               <div className="prose max-w-none">
                 <h3 className="text-lg font-semibold mb-4">스터디 소개</h3>
                 <div className="text-gray-700 whitespace-pre-line">
-                  {study?.description}
+                  {studyData?.description}
                 </div>
               </div>
             </CardContent>
             
             <CardFooter className="flex justify-end pt-4">
-              {!isParticipant && study?.status === "RECRUITING" && (
+              {!isParticipant && studyData?.status === "RECRUITING" && (
                 <Button 
                   onClick={handleJoinStudy}
-                  className="bg-blue-600 hover:bg-blue-700"
+                  className="bg-blue-600 hover:bg-blue-700 text-white"
                 >
                   참여하기
                 </Button>
@@ -267,26 +279,25 @@ const StudyDetail = () => {
             </CardFooter>
           </Card>
           
-          <Card className="shadow-md">
+          <Card className="shadow-sm border border-gray-200">
             <CardHeader>
-              <CardTitle className="text-xl font-semibold">참여자 목록</CardTitle>
+              <CardTitle className="text-xl font-semibold text-gray-800">참여자 목록</CardTitle>
             </CardHeader>
             <CardContent>
               <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
-                {study?.participants?.map((participant: Participant) => (
+                {studyData?.studyParticipants?.map((participant: StudyParticipant) => (
                   <div key={participant.username} className="flex items-center gap-3 p-3 border border-gray-200 rounded-lg">
                     <Avatar className="h-10 w-10">
                       <AvatarImage
                         src={`https://api.dicebear.com/7.x/avataaars/svg?seed=${participant.username}`}
-                        alt={participant.name}
+                        alt={participant.username}
                       />
-                      <AvatarFallback>{participant.name[0]}</AvatarFallback>
+                      <AvatarFallback>{participant.username[0]}</AvatarFallback>
                     </Avatar>
                     <div>
-                      <p className="font-medium text-gray-800">{participant.name}</p>
-                      <p className="text-sm text-gray-500">@{participant.username}</p>
+                      <p className="font-medium text-gray-800">{participant.username}</p>
                     </div>
-                    {participant.role === "ORGANIZER" && (
+                    {participant.username === studyData?.organizer && (
                       <Badge className="ml-auto bg-blue-100 text-blue-800 hover:bg-blue-200">개설자</Badge>
                     )}
                   </div>

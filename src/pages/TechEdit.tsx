@@ -38,6 +38,7 @@ const TechEdit = () => {
   const [title, setTitle] = useState("");
   const [thumbnail, setThumbnail] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [isUploading, setIsUploading] = useState(false);
   const editor = useEditor({
     extensions: [StarterKit, Image],
     content: "",
@@ -56,7 +57,6 @@ const TechEdit = () => {
     }
   });
   
-  // ✅ useEffect로 데이터 로딩 후 상태 업데이트
   useEffect(() => {
     if (post) {
       setTitle(post.title);
@@ -107,8 +107,6 @@ const TechEdit = () => {
   };
 
   const MenuBar = ({ editor }: { editor: any }) => {
-
-
     const addImage = useCallback(async (event: React.ChangeEvent<HTMLInputElement>) => {
       const file = event.target.files?.[0];
       const imageName = `${uuidv4()}-${file.name}`;
@@ -116,34 +114,28 @@ const TechEdit = () => {
       if (!file) return;
 
       try {
-        // 1️⃣ Presigned URL 요청
-        let  response  = await axiosWithAuth.get("http://localhost:8080/api/image/presignedUrl/upload", {
+        let response = await axiosWithAuth.get("http://localhost:8080/api/image/presignedUrl/upload", {
           params: { imageName: imageName },
           headers: {
             "Content-Type": "application/json",
           }
         });
 
-    
         const presignedUrl = response.data.response.presignedUrl;
-    
-        // 2️⃣ Presigned URL로 S3에 이미지 업로드
+
         await axiosWithAuth.put(presignedUrl, file, {
           headers: { 
             "Content-Type": file.type,
            },
         });
-    
-        // 3️⃣ 업로드된 이미지 URL을 에디터에 삽입
+
         const imageUrl = `https://demo-bucket-605134439665.s3.ap-northeast-2.amazonaws.com/${imageName}`;
-    
+
         editor.chain().focus().setImage({ src: imageUrl }).run();
       } catch (error) {
         console.error("이미지 업로드 실패:", error);
       }
     }, [editor]);
-
-
 
     if (!editor) return null;
 
@@ -202,6 +194,37 @@ const TechEdit = () => {
       </div>
     );
   };
+
+  const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    try {
+      if (!e.target.files || e.target.files.length === 0) return;
+      
+      const file = e.target.files[0];
+      const formData = new FormData();
+      formData.append('image', file);
+      
+      setIsUploading(true);
+      
+      const imageUrl = URL.createObjectURL(file);
+      
+      editor?.chain().focus().setImage({ src: imageUrl, alt: file.name }).run();
+      
+      toast({
+        title: "이미지 업로드 성공",
+        description: "이미지가 성공적으로 업로드되었습니다.",
+      });
+    } catch (error) {
+      console.error('이미지 업로드 실패:', error);
+      toast({
+        variant: "destructive",
+        title: "업로드 실패",
+        description: "이미지 업로드 중 오류가 발생했습니다.",
+      });
+    } finally {
+      setIsUploading(false);
+    }
+  };
+
   const handleThumbnailChange = useCallback(async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
   
@@ -215,7 +238,6 @@ const TechEdit = () => {
     console.log("선택한 파일 이름:", file.name); // 파일 이름 출력
   
     try {
-      // 1️⃣ Presigned URL 요청
       const response = await axiosWithAuth.get("http://localhost:8080/api/image/presignedUrl/upload", {
         params: { imageName: thumbnailImageName },
         headers: {
@@ -225,14 +247,12 @@ const TechEdit = () => {
   
       const presignedUrl = response.data.response.presignedUrl;
   
-      // 2️⃣ Presigned URL로 S3에 이미지 업로드
       await axiosWithAuth.put(presignedUrl, file, {
         headers: {
           "Content-Type": file.type,
         },
       });
   
-      // 3️⃣ 업로드된 이미지 URL을 썸네일로 설정
       const imageUrl = `https://demo-bucket-605134439665.s3.ap-northeast-2.amazonaws.com/${thumbnailImageName}`;
       setThumbnail(imageUrl);
     } catch (error) {
@@ -313,7 +333,6 @@ const TechEdit = () => {
         </div>
       </div>
       
-      {/* Floating Image Upload Button */}
       <div className="fixed right-8 top-1/2 transform -translate-y-1/2 z-50">
         <div className="bg-white border border-gray-200 rounded-lg p-2 shadow-md">
           <Button asChild variant="ghost" size="icon" className="text-gray-700 hover:bg-gray-100">
@@ -326,7 +345,7 @@ const TechEdit = () => {
             id="floatingImageUpload"
             type="file"
             accept="image/*"
-            onChange={addImage}
+            onChange={handleImageUpload}
             className="hidden"
           />
         </div>

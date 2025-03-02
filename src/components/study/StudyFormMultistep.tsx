@@ -1,3 +1,4 @@
+
 import { useState } from 'react';
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -10,6 +11,7 @@ import { Trash2 } from "lucide-react";
 interface StudyFormProps {
   onSubmit: (study: any) => void;
 }
+
 const StudyFormMultistep = ({ onSubmit }: StudyFormProps) => {
   const [step, setStep] = useState(1);
   const [isOpen, setIsOpen] = useState(false);
@@ -17,37 +19,35 @@ const StudyFormMultistep = ({ onSubmit }: StudyFormProps) => {
   const [formData, setFormData] = useState({
     title: '',
     description: '',
-    schedule: '',
+    location: '',
     maxMembers: 4,
-    leader: {
-      name: localStorage.getItem('username') || '',
-      avatar: `https://api.dicebear.com/7.x/avataaars/svg?seed=${localStorage.getItem('username')}`
-    },
+    schedule: '',
     curriculum: [''],
-    goals: [''],
-    achievements: [''],
-    members: [{
-      name: localStorage.getItem('username') || '',
-      avatar: `https://api.dicebear.com/7.x/avataaars/svg?seed=${localStorage.getItem('username')}`,
-      role: '스터디장'
-    }]
+    goals: ['']
   });
+
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    if (step < 4) {
+    if (step < 3) {
       setStep(step + 1);
       return;
     }
     onSubmit(formData);
     setIsOpen(false);
     setStep(1);
-    toast({
-      title: "스터디 생성 완료",
-      description: "새로운 스터디가 생성되었습니다."
+    setFormData({
+      title: '',
+      description: '',
+      location: '',
+      maxMembers: 4,
+      schedule: '',
+      curriculum: [''],
+      goals: ['']
     });
   };
+
   const handleArrayInput = (
-    field: 'curriculum' | 'goals' | 'achievements',
+    field: 'curriculum' | 'goals',
     index: number,
     value: string
   ) => {
@@ -58,39 +58,43 @@ const StudyFormMultistep = ({ onSubmit }: StudyFormProps) => {
       )
     }));
   };
-  const addArrayItem = (field: 'curriculum' | 'goals' | 'achievements') => {
+
+  const addArrayItem = (field: 'curriculum' | 'goals') => {
     setFormData(prev => ({
       ...prev,
       [field]: [...prev[field], '']
     }));
   };
-  const removeArrayItem = (field: 'curriculum' | 'goals' | 'achievements', index: number) => {
+
+  const removeArrayItem = (field: 'curriculum' | 'goals', index: number) => {
     setFormData(prev => ({
       ...prev,
       [field]: prev[field].filter((_: string, i: number) => i !== index)
     }));
   };
+
   const renderStep = () => {
     switch(step) {
       case 1:
         return (
           <div className="space-y-4">
             <div>
-              <label className="text-sm text-gray-400">스터디 제목</label>
+              <label className="text-sm font-medium text-gray-700">스터디 제목</label>
               <Input
                 value={formData.title}
                 onChange={(e) => setFormData({...formData, title: e.target.value})}
-                className="bg-white/5 border-white/10 text-white"
+                className="mt-1"
                 placeholder="스터디 제목을 입력하세요"
               />
             </div>
             <div>
-              <label className="text-sm text-gray-400">스터디 설명</label>
+              <label className="text-sm font-medium text-gray-700">스터디 설명</label>
               <Textarea
                 value={formData.description}
                 onChange={(e) => setFormData({...formData, description: e.target.value})}
-                className="bg-white/5 border-white/10 text-white"
+                className="mt-1"
                 placeholder="스터디에 대한 설명을 입력하세요"
+                rows={4}
               />
             </div>
           </div>
@@ -99,21 +103,30 @@ const StudyFormMultistep = ({ onSubmit }: StudyFormProps) => {
         return (
           <div className="space-y-4">
             <div>
-              <label className="text-sm text-gray-400">스터디 일정</label>
+              <label className="text-sm font-medium text-gray-700">장소</label>
+              <Input
+                value={formData.location}
+                onChange={(e) => setFormData({...formData, location: e.target.value})}
+                className="mt-1"
+                placeholder="예: 2층 동방, 온라인 등"
+              />
+            </div>
+            <div>
+              <label className="text-sm font-medium text-gray-700">스터디 일정</label>
               <Input
                 value={formData.schedule}
                 onChange={(e) => setFormData({...formData, schedule: e.target.value})}
-                className="bg-white/5 border-white/10 text-white"
+                className="mt-1"
                 placeholder="예: 매주 화요일 19:00 - 21:00"
               />
             </div>
             <div>
-              <label className="text-sm text-gray-400">최대 인원</label>
+              <label className="text-sm font-medium text-gray-700">최대 인원</label>
               <Input
                 type="number"
                 value={formData.maxMembers}
                 onChange={(e) => setFormData({...formData, maxMembers: parseInt(e.target.value)})}
-                className="bg-white/5 border-white/10 text-white"
+                className="mt-1"
                 min={2}
                 max={20}
               />
@@ -124,21 +137,20 @@ const StudyFormMultistep = ({ onSubmit }: StudyFormProps) => {
         return (
           <div className="space-y-4">
             <div>
-              <label className="text-sm text-gray-400">커리큘럼</label>
+              <label className="text-sm font-medium text-gray-700">커리큘럼</label>
               {formData.curriculum.map((item, index) => (
                 <div key={index} className="flex gap-2 mt-2">
                   <Input
                     value={item}
                     onChange={(e) => handleArrayInput('curriculum', index, e.target.value)}
-                    className="bg-white/5 border-white/10 text-white"
                     placeholder="커리큘럼 항목을 입력하세요"
                   />
                   <Button
                     type="button"
-                    variant="ghost"
+                    variant="outline"
                     size="icon"
                     onClick={() => removeArrayItem('curriculum', index)}
-                    className="text-red-500 hover:text-red-400"
+                    className="text-red-500 hover:text-red-600 hover:bg-red-50"
                   >
                     <Trash2 className="h-4 w-4" />
                   </Button>
@@ -146,34 +158,29 @@ const StudyFormMultistep = ({ onSubmit }: StudyFormProps) => {
               ))}
               <Button
                 type="button"
-                variant="ghost"
+                variant="outline"
                 onClick={() => addArrayItem('curriculum')}
-                className="mt-2 text-white hover:bg-white/10"
+                className="mt-2 text-blue-600 hover:bg-blue-50 hover:text-blue-700"
               >
                 + 커리큘럼 추가
               </Button>
             </div>
-          </div>
-        );
-      case 4:
-        return (
-          <div className="space-y-4">
+            
             <div>
-              <label className="text-sm text-gray-400">목표</label>
+              <label className="text-sm font-medium text-gray-700">목표</label>
               {formData.goals.map((item, index) => (
                 <div key={index} className="flex gap-2 mt-2">
                   <Input
                     value={item}
                     onChange={(e) => handleArrayInput('goals', index, e.target.value)}
-                    className="bg-white/5 border-white/10 text-white"
                     placeholder="스터디 목표를 입력하세요"
                   />
                   <Button
                     type="button"
-                    variant="ghost"
+                    variant="outline"
                     size="icon"
                     onClick={() => removeArrayItem('goals', index)}
-                    className="text-red-500 hover:text-red-400"
+                    className="text-red-500 hover:text-red-600 hover:bg-red-50"
                   >
                     <Trash2 className="h-4 w-4" />
                   </Button>
@@ -181,9 +188,9 @@ const StudyFormMultistep = ({ onSubmit }: StudyFormProps) => {
               ))}
               <Button
                 type="button"
-                variant="ghost"
+                variant="outline"
                 onClick={() => addArrayItem('goals')}
-                className="mt-2 text-white hover:bg-white/10"
+                className="mt-2 text-blue-600 hover:bg-blue-50 hover:text-blue-700"
               >
                 + 목표 추가
               </Button>
@@ -192,23 +199,24 @@ const StudyFormMultistep = ({ onSubmit }: StudyFormProps) => {
         );
     }
   };
+
   return (
     <Dialog open={isOpen} onOpenChange={setIsOpen}>
       <DialogTrigger asChild>
-        <Button className="bg-tgwing-600 hover:bg-tgwing-700">
+        <Button className="bg-blue-600 hover:bg-blue-700 text-white">
           새 스터디 개설
         </Button>
       </DialogTrigger>
-      <DialogContent className="bg-[#1F2937] border-white/10 max-w-2xl">
+      <DialogContent className="max-w-2xl">
         <DialogHeader>
-          <DialogTitle className="text-white flex items-center justify-between">
+          <DialogTitle className="flex items-center justify-between">
             새로운 스터디 개설
             <div className="flex gap-2">
-              {[1, 2, 3, 4].map((s) => (
+              {[1, 2, 3].map((s) => (
                 <Badge
                   key={s}
                   variant={s === step ? "default" : "outline"}
-                  className={s === step ? "bg-tgwing-600" : "bg-transparent"}
+                  className={s === step ? "bg-blue-600" : "bg-transparent"}
                 >
                   {s}단계
                 </Badge>
@@ -224,16 +232,16 @@ const StudyFormMultistep = ({ onSubmit }: StudyFormProps) => {
                 type="button"
                 variant="outline"
                 onClick={() => setStep(step - 1)}
-                className="text-white border-white/20 hover:bg-white/10"
+                className="text-gray-700 border-gray-300 hover:bg-gray-50"
               >
                 이전
               </Button>
             )}
             <Button
               type="submit"
-              className="bg-tgwing-600 hover:bg-tgwing-700"
+              className="bg-blue-600 hover:bg-blue-700 text-white"
             >
-              {step === 4 ? "완료" : "다음"}
+              {step === 3 ? "완료" : "다음"}
             </Button>
           </div>
         </form>
@@ -241,4 +249,5 @@ const StudyFormMultistep = ({ onSubmit }: StudyFormProps) => {
     </Dialog>
   );
 };
+
 export default StudyFormMultistep;
